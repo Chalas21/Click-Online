@@ -1,34 +1,580 @@
-.App-logo {
-    height: 40vmin;
-    pointer-events: none;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-    .App-logo {
-        animation: App-logo-spin infinite 20s linear;
-    }
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  min-height: 100vh;
 }
 
-.App-header {
-    background-color: #0f0f10;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-size: calc(10px + 2vmin);
-    color: white;
+.app {
+  min-height: 100vh;
+  color: #333;
 }
 
-.App-link {
-    color: #61dafb;
+/* Authentication Styles */
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
 }
 
-@keyframes App-logo-spin {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
+.auth-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 450px;
+  text-align: center;
+}
+
+.auth-card h1 {
+  color: #1e3c72;
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.auth-card p {
+  color: #666;
+  margin-bottom: 30px;
+}
+
+.auth-tabs {
+  display: flex;
+  margin-bottom: 30px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 2px solid #e0e0e0;
+}
+
+.auth-tabs button {
+  flex: 1;
+  padding: 15px;
+  border: none;
+  background: #f8f9fa;
+  color: #666;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.auth-tabs button.active {
+  background: #1e3c72;
+  color: white;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.auth-form input,
+.auth-form select {
+  padding: 15px;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.auth-form input:focus,
+.auth-form select:focus {
+  outline: none;
+  border-color: #1e3c72;
+  box-shadow: 0 0 10px rgba(30, 60, 114, 0.1);
+}
+
+.auth-form button {
+  padding: 15px;
+  background: #1e3c72;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.auth-form button:hover:not(:disabled) {
+  background: #2a5298;
+}
+
+.auth-form button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+/* Header Styles */
+.header {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  padding: 20px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.header h1 {
+  color: #1e3c72;
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.header-info {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.token-balance {
+  background: #ffc107;
+  color: #333;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: bold;
+}
+
+.logout-btn {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.3s ease;
+}
+
+.logout-btn:hover {
+  background: #c82333;
+}
+
+/* Main Content Styles */
+.main-content {
+  padding: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Professional Dashboard */
+.professional-dashboard {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.status-controls {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.status-controls h2 {
+  margin-bottom: 20px;
+  color: #1e3c72;
+}
+
+.status-online {
+  color: #28a745;
+}
+
+.status-offline {
+  color: #6c757d;
+}
+
+.status-busy {
+  color: #ffc107;
+}
+
+.status-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+.status-buttons button {
+  padding: 12px 24px;
+  border: 2px solid #e0e0e0;
+  background: white;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.status-buttons button.active {
+  border-color: #1e3c72;
+  background: #1e3c72;
+  color: white;
+}
+
+.professional-info {
+  margin-bottom: 40px;
+}
+
+.professional-info h3 {
+  color: #1e3c72;
+  margin-bottom: 15px;
+}
+
+.professional-info p {
+  margin-bottom: 10px;
+  color: #666;
+}
+
+.waiting-message {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #666;
+}
+
+/* User Dashboard */
+.user-dashboard h2 {
+  color: white;
+  margin-bottom: 30px;
+  font-size: 2rem;
+  text-align: center;
+}
+
+.professionals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 25px;
+}
+
+.professional-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  padding: 25px;
+  border-radius: 15px;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.professional-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+}
+
+.prof-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.prof-header h3 {
+  color: #1e3c72;
+  font-size: 1.3rem;
+}
+
+.status-badge {
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+
+.status-badge.status-online {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-badge.status-busy {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.professional-card p {
+  margin-bottom: 10px;
+  color: #666;
+}
+
+.call-btn {
+  width: 100%;
+  padding: 12px;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  margin-top: 15px;
+}
+
+.call-btn:hover:not(:disabled) {
+  background: #218838;
+}
+
+.call-btn:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+}
+
+/* Incoming Call Modal */
+.incoming-call-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 40px;
+  border-radius: 20px;
+  text-align: center;
+  max-width: 400px;
+  width: 90%;
+}
+
+.modal-content h2 {
+  color: #1e3c72;
+  margin-bottom: 20px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+.accept-btn {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.accept-btn:hover {
+  background: #218838;
+}
+
+.reject-btn {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.reject-btn:hover {
+  background: #c82333;
+}
+
+/* Call Interface */
+.call-interface {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #000;
+}
+
+.video-container {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.remote-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #222;
+}
+
+.local-video {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 200px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 3px solid white;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.call-controls {
+  padding: 20px;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.end-call-btn {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 50px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+}
+
+.end-call-btn:hover {
+  background: #c82333;
+  transform: scale(1.05);
+}
+
+/* Chat Styles */
+.chat-container {
+  position: fixed;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 300px;
+  height: 400px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.chat-messages {
+  flex: 1;
+  padding: 15px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.chat-message {
+  max-width: 80%;
+  padding: 10px;
+  border-radius: 15px;
+  word-wrap: break-word;
+}
+
+.chat-message.own {
+  align-self: flex-end;
+  background: #1e3c72;
+  color: white;
+  border-bottom-right-radius: 5px;
+}
+
+.chat-message.other {
+  align-self: flex-start;
+  background: #e9ecef;
+  color: #333;
+  border-bottom-left-radius: 5px;
+}
+
+.message-content {
+  margin-bottom: 5px;
+}
+
+.message-time {
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
+.chat-input {
+  display: flex;
+  padding: 15px;
+  gap: 10px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.chat-input input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  outline: none;
+}
+
+.chat-input input:focus {
+  border-color: #1e3c72;
+}
+
+.chat-input button {
+  background: #1e3c72;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.3s ease;
+}
+
+.chat-input button:hover {
+  background: #2a5298;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .professionals-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .local-video {
+    width: 120px;
+    height: 90px;
+    top: 10px;
+    right: 10px;
+  }
+  
+  .chat-container {
+    position: fixed;
+    bottom: 80px;
+    right: 10px;
+    left: 10px;
+    width: auto;
+    height: 250px;
+    top: auto;
+    transform: none;
+  }
+  
+  .header {
+    padding: 15px 20px;
+  }
+  
+  .header h1 {
+    font-size: 1.5rem;
+  }
+  
+  .header-info {
+    gap: 10px;
+  }
+  
+  .main-content {
+    padding: 20px;
+  }
 }

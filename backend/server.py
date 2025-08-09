@@ -1,75 +1,428 @@
-from fastapi import FastAPI, APIRouter
-from dotenv import load_dotenv
-from starlette.middleware.cors import CORSMiddleware
-from motor.motor_asyncio import AsyncIOMotorClient
-import os
-import logging
-from pathlib import Path
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Depends, HTTPException, status
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel, Field
-from typing import List
+from typing import Optional, List, Dict, Any
+import jwt
+import bcrypt
+import asyncio
+import json
+from datetime import datetime, timedelta
+from motor.motor_asyncio import AsyncIOMotorClient
+from bson import ObjectId
+import os
+from enum import Enum
 import uuid
-from datetime import datetime
+import logging
 
+# Configuration
+DATABASE_URL = os.getenv("MONGO_URL", "mongodb://localhost:27017")
+JWT_SECRET = os.getenv("JWT_SECRET", "your-secret-key")
+JWT_ALGORITHM = "HS256"
 
-ROOT_DIR = Path(__file__).parent
-load_dotenv(ROOT_DIR / '.env')
+app = FastAPI(title="Click Online API", version="1.0.0")
 
-# MongoDB connection
-mongo_url = os.environ['MONGO_URL']
-client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
-
-# Create the main app without a prefix
-app = FastAPI()
-
-# Create a router with the /api prefix
-api_router = APIRouter(prefix="/api")
-
-
-# Define Models
-class StatusCheck(BaseModel):
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    client_name: str
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
-
-class StatusCheckCreate(BaseModel):
-    client_name: str
-
-# Add your routes to the router instead of directly to app
-@api_router.get("/")
-async def root():
-    return {"message": "Hello World"}
-
-@api_router.post("/status", response_model=StatusCheck)
-async def create_status_check(input: StatusCheckCreate):
-    status_dict = input.dict()
-    status_obj = StatusCheck(**status_dict)
-    _ = await db.status_checks.insert_one(status_obj.dict())
-    return status_obj
-
-@api_router.get("/status", response_model=List[StatusCheck])
-async def get_status_checks():
-    status_checks = await db.status_checks.find().to_list(1000)
-    return [StatusCheck(**status_check) for status_check in status_checks]
-
-# Include the router in the main app
-app.include_router(api_router)
-
+# CORS Configuration
 app.add_middleware(
     CORSMiddleware,
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+# Database
+client = AsyncIOMotorClient(DATABASE_URL)
+db = client.click_online
+
+# Security
+security = HTTPBearer()
+
+# Logging
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-@app.on_event("shutdown")
-async def shutdown_db_client():
-    client.close()
+# WebSocket Manager for signaling
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: Dict[str, WebSocket] = {}
+        self.user_connections: Dict[str, str] = {}  # user_id -> connection_id
+    
+    async def connect(self, websocket: WebSocket, user_id: str):
+        await websocket.accept()
+        connection_id = str(uuid.uuid4())
+        self.active_connections[connection_id] = websocket
+        self.user_connections[user_id] = connection_id
+        logger.info(f"User {user_id} connected with connection {connection_id}")
+        return connection_id
+    
+    def disconnect(self, connection_id: str, user_id: str):
+        if connection_id in self.active_connections:
+            del self.active_connections[connection_id]
+        if user_id in self.user_connections:
+            del self.user_connections[user_id]
+        logger.info(f"User {user_id} disconnected")
+    
+    async def send_to_user(self, user_id: str, message: dict):
+        if user_id in self.user_connections:
+            connection_id = self.user_connections[user_id]
+            if connection_id in self.active_connections:
+                websocket = self.active_connections[connection_id]
+                try:
+                    await websocket.send_text(json.dumps(message))
+                except:
+                    self.disconnect(connection_id, user_id)
+
+manager = ConnectionManager()
+
+# Enums
+class UserRole(str, Enum):
+    USER = "user"
+    PROFESSIONAL = "professional"
+
+class UserStatus(str, Enum):
+    OFFLINE = "offline"
+    ONLINE = "online"
+    BUSY = "busy"
+
+class CallStatus(str, Enum):
+    PENDING = "pending"
+    ACTIVE = "active"
+    ENDED = "ended"
+    CANCELLED = "cancelled"
+
+# Models
+class UserCreate(BaseModel):
+    name: str
+    email: str
+    password: str
+    role: UserRole
+    specialization: Optional[str] = None
+    price_per_minute: Optional[float] = None
+
+class UserLogin(BaseModel):
+    email: str
+    password: str
+
+class UserResponse(BaseModel):
+    id: str
+    name: str
+    email: str
+    role: UserRole
+    status: UserStatus
+    specialization: Optional[str] = None
+    price_per_minute: Optional[float] = None
+    token_balance: int = 0
+
+class CallRequest(BaseModel):
+    professional_id: str
+
+class StatusUpdate(BaseModel):
+    status: UserStatus
+
+# Authentication utilities
+def create_access_token(data: dict):
+    to_encode = data.copy()
+    expire = datetime.utcnow() + timedelta(hours=24)
+    to_encode.update({"exp": expire})
+    return jwt.encode(to_encode, JWT_SECRET, algorithm=JWT_ALGORITHM)
+
+def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    try:
+        payload = jwt.decode(credentials.credentials, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        user_id: str = payload.get("sub")
+        if user_id is None:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        return user_id
+    except jwt.PyJWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+def hash_password(password: str) -> str:
+    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
+def verify_password(password: str, hashed: str) -> bool:
+    return bcrypt.checkpw(password.encode('utf-8'), hashed.encode('utf-8'))
+
+async def get_current_user(user_id: str = Depends(verify_token)):
+    user = await db.users.find_one({"_id": ObjectId(user_id)})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    user["id"] = str(user["_id"])
+    return user
+
+# Helper functions
+def serialize_user(user: dict) -> dict:
+    return {
+        "id": str(user["_id"]),
+        "name": user["name"],
+        "email": user["email"],
+        "role": user["role"],
+        "status": user.get("status", "offline"),
+        "specialization": user.get("specialization"),
+        "price_per_minute": user.get("price_per_minute"),
+        "token_balance": user.get("token_balance", 100)  # Default 100 tokens for MVP
+    }
+
+# API Routes
+@app.get("/")
+async def root():
+    return {"message": "Click Online API is running"}
+
+@app.post("/api/register")
+async def register(user_data: UserCreate):
+    # Check if user exists
+    existing_user = await db.users.find_one({"email": user_data.email})
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    
+    # Create user
+    user_dict = {
+        "name": user_data.name,
+        "email": user_data.email,
+        "password": hash_password(user_data.password),
+        "role": user_data.role,
+        "status": "offline",
+        "token_balance": 100,  # Give 100 tokens for MVP
+        "created_at": datetime.utcnow()
+    }
+    
+    if user_data.role == "professional":
+        user_dict["specialization"] = user_data.specialization
+        user_dict["price_per_minute"] = user_data.price_per_minute or 5
+    
+    result = await db.users.insert_one(user_dict)
+    user_id = str(result.inserted_id)
+    
+    token = create_access_token({"sub": user_id})
+    
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "user": serialize_user({**user_dict, "_id": result.inserted_id})
+    }
+
+@app.post("/api/login")
+async def login(credentials: UserLogin):
+    user = await db.users.find_one({"email": credentials.email})
+    if not user or not verify_password(credentials.password, user["password"]):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    
+    # Update status to online
+    await db.users.update_one(
+        {"_id": user["_id"]}, 
+        {"$set": {"status": "online", "last_login": datetime.utcnow()}}
+    )
+    
+    token = create_access_token({"sub": str(user["_id"])})
+    
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "user": serialize_user({**user, "status": "online"})
+    }
+
+@app.get("/api/me")
+async def get_me(current_user: dict = Depends(get_current_user)):
+    return serialize_user(current_user)
+
+@app.put("/api/status")
+async def update_status(status_update: StatusUpdate, current_user: dict = Depends(get_current_user)):
+    await db.users.update_one(
+        {"_id": ObjectId(current_user["_id"])},
+        {"$set": {"status": status_update.status}}
+    )
+    
+    return {"message": "Status updated successfully"}
+
+@app.get("/api/professionals")
+async def get_professionals():
+    professionals = await db.users.find({
+        "role": "professional",
+        "status": {"$in": ["online", "busy"]}
+    }).to_list(100)
+    
+    return [serialize_user(prof) for prof in professionals]
+
+@app.post("/api/call/initiate")
+async def initiate_call(call_request: CallRequest, current_user: dict = Depends(get_current_user)):
+    # Check if professional exists and is online
+    professional = await db.users.find_one({"_id": ObjectId(call_request.professional_id)})
+    if not professional:
+        raise HTTPException(status_code=404, detail="Professional not found")
+    
+    if professional["status"] != "online":
+        raise HTTPException(status_code=400, detail="Professional is not available")
+    
+    # Check user balance
+    if current_user.get("token_balance", 0) < 10:  # Minimum 10 tokens to start call
+        raise HTTPException(status_code=400, detail="Insufficient tokens")
+    
+    # Create call record
+    call_data = {
+        "caller_id": str(current_user["_id"]),
+        "callee_id": call_request.professional_id,
+        "status": "pending",
+        "created_at": datetime.utcnow()
+    }
+    
+    result = await db.calls.insert_one(call_data)
+    call_id = str(result.inserted_id)
+    
+    # Update professional status to busy
+    await db.users.update_one(
+        {"_id": ObjectId(call_request.professional_id)},
+        {"$set": {"status": "busy"}}
+    )
+    
+    # Notify professional via WebSocket
+    await manager.send_to_user(call_request.professional_id, {
+        "type": "call_request",
+        "call_id": call_id,
+        "caller": serialize_user(current_user)
+    })
+    
+    return {"call_id": call_id, "status": "pending"}
+
+@app.post("/api/call/{call_id}/accept")
+async def accept_call(call_id: str, current_user: dict = Depends(get_current_user)):
+    call = await db.calls.find_one({"_id": ObjectId(call_id)})
+    if not call:
+        raise HTTPException(status_code=404, detail="Call not found")
+    
+    if call["callee_id"] != str(current_user["_id"]):
+        raise HTTPException(status_code=403, detail="Unauthorized")
+    
+    # Update call status
+    await db.calls.update_one(
+        {"_id": ObjectId(call_id)},
+        {"$set": {"status": "active", "started_at": datetime.utcnow()}}
+    )
+    
+    # Notify caller
+    await manager.send_to_user(call["caller_id"], {
+        "type": "call_accepted",
+        "call_id": call_id
+    })
+    
+    return {"message": "Call accepted"}
+
+@app.post("/api/call/{call_id}/end")
+async def end_call(call_id: str, current_user: dict = Depends(get_current_user)):
+    call = await db.calls.find_one({"_id": ObjectId(call_id)})
+    if not call:
+        raise HTTPException(status_code=404, detail="Call not found")
+    
+    user_id = str(current_user["_id"])
+    if user_id not in [call["caller_id"], call["callee_id"]]:
+        raise HTTPException(status_code=403, detail="Unauthorized")
+    
+    # Calculate duration and cost
+    duration = 0
+    cost = 0
+    if call.get("started_at"):
+        duration = (datetime.utcnow() - call["started_at"]).total_seconds() / 60  # minutes
+        
+        # Get professional's price
+        professional = await db.users.find_one({"_id": ObjectId(call["callee_id"])})
+        price_per_minute = professional.get("price_per_minute", 5)
+        cost = max(10, int(duration * price_per_minute))  # Minimum 10 tokens
+    
+    # Update call record
+    await db.calls.update_one(
+        {"_id": ObjectId(call_id)},
+        {
+            "$set": {
+                "status": "ended",
+                "ended_at": datetime.utcnow(),
+                "duration_minutes": duration,
+                "cost_tokens": cost
+            }
+        }
+    )
+    
+    # Transfer tokens
+    if cost > 0:
+        # Deduct from caller
+        await db.users.update_one(
+            {"_id": ObjectId(call["caller_id"])},
+            {"$inc": {"token_balance": -cost}}
+        )
+        
+        # Add to professional (minus platform fee)
+        professional_earning = int(cost * 0.85)  # 15% platform fee
+        await db.users.update_one(
+            {"_id": ObjectId(call["callee_id"])},
+            {"$inc": {"token_balance": professional_earning}}
+        )
+    
+    # Update professional status back to online
+    await db.users.update_one(
+        {"_id": ObjectId(call["callee_id"])},
+        {"$set": {"status": "online"}}
+    )
+    
+    # Notify both parties
+    other_user_id = call["callee_id"] if user_id == call["caller_id"] else call["caller_id"]
+    await manager.send_to_user(other_user_id, {
+        "type": "call_ended",
+        "call_id": call_id,
+        "duration": duration,
+        "cost": cost
+    })
+    
+    return {"message": "Call ended", "duration": duration, "cost": cost}
+
+@app.get("/api/calls")
+async def get_calls(current_user: dict = Depends(get_current_user)):
+    user_id = str(current_user["_id"])
+    calls = await db.calls.find({
+        "$or": [
+            {"caller_id": user_id},
+            {"callee_id": user_id}
+        ]
+    }).sort("created_at", -1).limit(20).to_list(20)
+    
+    for call in calls:
+        call["id"] = str(call["_id"])
+        del call["_id"]
+    
+    return calls
+
+# WebSocket for signaling
+@app.websocket("/ws/{user_id}")
+async def websocket_endpoint(websocket: WebSocket, user_id: str):
+    connection_id = await manager.connect(websocket, user_id)
+    
+    try:
+        while True:
+            data = await websocket.receive_text()
+            message = json.loads(data)
+            
+            # Handle WebRTC signaling
+            if message["type"] in ["offer", "answer", "ice-candidate"]:
+                target_user = message.get("target")
+                if target_user:
+                    await manager.send_to_user(target_user, {
+                        **message,
+                        "from": user_id
+                    })
+            
+            # Handle chat messages
+            elif message["type"] == "chat_message":
+                target_user = message.get("target")
+                if target_user:
+                    await manager.send_to_user(target_user, {
+                        "type": "chat_message",
+                        "message": message["message"],
+                        "from": user_id,
+                        "timestamp": datetime.utcnow().isoformat()
+                    })
+                    
+    except WebSocketDisconnect:
+        manager.disconnect(connection_id, user_id)
+        
+        # Update user status to offline
+        await db.users.update_one(
+            {"_id": ObjectId(user_id)},
+            {"$set": {"status": "offline"}}
+        )

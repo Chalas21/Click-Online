@@ -223,6 +223,18 @@ function App() {
     }
   };
 
+  const updateStatus = async (status) => {
+    try {
+      await apiCall('/api/status', {
+        method: 'PUT',
+        body: JSON.stringify({ status }),
+      });
+      setUser(prev => ({ ...prev, status }));
+    } catch (error) {
+      alert('Failed to update status: ' + error.message);
+    }
+  };
+
   // WebRTC Functions
   const initializePeerConnection = () => {
     const peerConnection = new RTCPeerConnection(rtcConfig);

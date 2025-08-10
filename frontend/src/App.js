@@ -606,15 +606,33 @@ function App() {
 
   const acceptCall = async () => {
     try {
+      console.log('🟢 Accepting call:', incomingCall.call_id);
+      
+      // Request permissions before accepting
+      const hasPermissions = await requestMediaPermissions();
+      if (!hasPermissions) {
+        return;
+      }
+      
+      // Accept via API first
       await apiCall(`/api/call/${incomingCall.call_id}/accept`, {
         method: 'POST',
       });
+      
+      console.log('✅ Call accepted via API, starting WebRTC as callee...');
+      
+      // Set call state
       setCurrentCall({ 
         call_id: incomingCall.call_id, 
         other_user_id: incomingCall.caller.id 
       });
       setIncomingCall(null);
+      
+      // Wait for offer to arrive via WebSocket - handled by handleOffer
+      console.log('⏳ Waiting for offer from caller...');
+      
     } catch (error) {
+      console.error('❌ Failed to accept call:', error);
       alert('Failed to accept call: ' + error.message);
     }
   };

@@ -169,7 +169,9 @@ def serialize_user(user: dict) -> dict:
         "category": user.get("category"),
         "price_per_minute": user.get("price_per_minute", 1),
         "token_balance": user.get("token_balance", 1000),  # Default 1000 tokens for MVP
-        "professional_mode": user.get("professional_mode", False)
+        "professional_mode": user.get("professional_mode", False),
+        "description": user.get("description"),
+        "profile_photo": user.get("profile_photo")
     }
 
 # API Routes

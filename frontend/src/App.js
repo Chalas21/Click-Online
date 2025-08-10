@@ -102,6 +102,14 @@ function App() {
             }]);
             break;
             
+          case 'file_message':
+            setChatMessages(prev => [...prev, {
+              from: message.from,
+              file: message.file,
+              timestamp: message.timestamp
+            }]);
+            break;
+            
           case 'call_ended':
             endCall();
             alert(`Call ended. Duration: ${message.duration?.toFixed(1)} minutes. Cost: ${message.cost} tokens`);

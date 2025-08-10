@@ -529,6 +529,10 @@ function App() {
 
   const sendChatMessage = () => {
     if (chatInput.trim() && websocketRef.current && currentCall) {
+      console.log('Sending chat message:', chatInput);
+      console.log('Current call:', currentCall);
+      console.log('WebSocket state:', websocketRef.current.readyState);
+      
       websocketRef.current.send(JSON.stringify({
         type: 'chat_message',
         message: chatInput,
@@ -542,6 +546,55 @@ function App() {
       }]);
       
       setChatInput('');
+    } else {
+      console.log('Cannot send message:', {
+        chatInput: chatInput.trim(),
+        websocket: !!websocketRef.current,
+        currentCall: !!currentCall
+      });
+    }
+  };
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf'];
+      if (!allowedTypes.includes(file.type)) {
+        alert('Apenas imagens (JPEG, PNG, GIF) e arquivos PDF são permitidos.');
+        return;
+      }
+
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        alert('Arquivo muito grande. Tamanho máximo: 5MB.');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const fileData = {
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          data: event.target.result
+        };
+
+        if (websocketRef.current && currentCall) {
+          websocketRef.current.send(JSON.stringify({
+            type: 'file_message',
+            file: fileData,
+            target: currentCall.other_user_id
+          }));
+
+          setChatMessages(prev => [...prev, {
+            from: user.id,
+            file: fileData,
+            timestamp: new Date().toISOString()
+          }]);
+        }
+      };
+      
+      reader.readAsDataURL(file);
+      e.target.value = ''; // Reset file input
     }
   };
 

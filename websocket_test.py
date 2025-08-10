@@ -435,7 +435,7 @@ class WebSocketTester:
         # Test connection to invalid user ID
         try:
             invalid_ws_url = f"{self.ws_url}/api/ws/invalid-user-id"
-            invalid_ws = await websockets.connect(invalid_ws_url, timeout=5)
+            invalid_ws = await asyncio.wait_for(websockets.connect(invalid_ws_url), timeout=5)
             await invalid_ws.close()
             self.log_test("Invalid User ID Connection", False, "Should have failed but didn't")
         except Exception as e:
@@ -444,7 +444,7 @@ class WebSocketTester:
         # Test connection to wrong endpoint
         try:
             wrong_endpoint_url = f"{self.ws_url}/ws/{self.user_id}"  # Missing /api prefix
-            wrong_ws = await websockets.connect(wrong_endpoint_url, timeout=5)
+            wrong_ws = await asyncio.wait_for(websockets.connect(wrong_endpoint_url), timeout=5)
             await wrong_ws.close()
             self.log_test("Wrong Endpoint Connection", False, "Should have failed but didn't")
         except Exception as e:

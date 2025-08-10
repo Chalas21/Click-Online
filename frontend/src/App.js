@@ -270,27 +270,39 @@ function App() {
 
   const startCall = async (isCaller) => {
     try {
+      console.log('Starting call, isCaller:', isCaller);
+      
       const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: true, 
+        video: { width: 640, height: 480 }, 
         audio: true 
       });
       
+      console.log('Local stream obtained:', stream);
+      
       if (localVideoRef.current) {
         localVideoRef.current.srcObject = stream;
+        setLocalVideo(stream);
       }
       localStreamRef.current = stream;
 
       const peerConnection = initializePeerConnection();
       peerConnectionRef.current = peerConnection;
 
+      // Add tracks to peer connection
       stream.getTracks().forEach(track => {
+        console.log('Adding track to peer connection:', track.kind);
         peerConnection.addTrack(track, stream);
       });
 
       if (isCaller) {
-        const offer = await peerConnection.createOffer();
+        console.log('Creating offer...');
+        const offer = await peerConnection.createOffer({
+          offerToReceiveVideo: true,
+          offerToReceiveAudio: true
+        });
         await peerConnection.setLocalDescription(offer);
         
+        console.log('Sending offer via WebSocket');
         websocketRef.current.send(JSON.stringify({
           type: 'offer',
           sdp: offer,
@@ -299,7 +311,7 @@ function App() {
       }
     } catch (error) {
       console.error('Error starting call:', error);
-      alert('Could not access camera/microphone');
+      alert('Não foi possível acessar câmera/microfone: ' + error.message);
     }
   };
 

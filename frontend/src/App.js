@@ -299,39 +299,81 @@ function App() {
 
   // WebRTC Functions
   const initializePeerConnection = () => {
+    console.log('Initializing peer connection...');
     const peerConnection = new RTCPeerConnection(rtcConfig);
     
+    // ICE candidate handling
     peerConnection.onicecandidate = (event) => {
+      console.log('ICE candidate event:', event.candidate);
       if (event.candidate && websocketRef.current && currentCall) {
-        console.log('Sending ICE candidate:', event.candidate);
+        console.log('Sending ICE candidate via WebSocket');
         websocketRef.current.send(JSON.stringify({
           type: 'ice-candidate',
           candidate: event.candidate,
           target: currentCall?.other_user_id
         }));
+      } else if (!event.candidate) {
+        console.log('ICE gathering completed');
       }
     };
     
+    // Remote stream handling - CRITICAL for receiving audio/video
     peerConnection.ontrack = (event) => {
-      console.log('Remote stream received:', event.streams[0]);
-      console.log('Remote stream tracks:', event.streams[0].getTracks().length);
-      if (remoteVideoRef.current && event.streams[0]) {
-        remoteVideoRef.current.srcObject = event.streams[0];
-        setRemoteVideo(event.streams[0]);
-        console.log('Remote video element updated');
+      console.log('🎥 REMOTE TRACK RECEIVED!');
+      console.log('Remote streams count:', event.streams.length);
+      console.log('Remote tracks:', event.streams[0]?.getTracks().map(t => ({ kind: t.kind, enabled: t.enabled, readyState: t.readyState })));
+      
+      if (event.streams && event.streams[0]) {
+        const remoteStream = event.streams[0];
+        console.log('Setting remote stream to video element');
+        
+        if (remoteVideoRef.current) {
+          remoteVideoRef.current.srcObject = remoteStream;
+          setRemoteVideo(remoteStream);
+          
+          // Ensure video plays
+          remoteVideoRef.current.play().catch(e => {
+            console.warn('Error playing remote video:', e);
+          });
+        }
       }
     };
 
+    // Connection state monitoring
     peerConnection.onconnectionstatechange = () => {
-      console.log('Connection state:', peerConnection.connectionState);
+      console.log('🔗 Connection state changed:', peerConnection.connectionState);
+      
+      if (peerConnection.connectionState === 'connected') {
+        console.log('✅ WebRTC connection established!');
+      } else if (peerConnection.connectionState === 'failed') {
+        console.log('❌ WebRTC connection failed');
+        // Attempt to restart ICE
+        peerConnection.restartIce();
+      } else if (peerConnection.connectionState === 'disconnected') {
+        console.log('🔌 WebRTC connection disconnected');
+      }
     };
 
+    // ICE connection state monitoring
     peerConnection.oniceconnectionstatechange = () => {
-      console.log('ICE connection state:', peerConnection.iceConnectionState);
+      console.log('🧊 ICE connection state:', peerConnection.iceConnectionState);
+      
+      if (peerConnection.iceConnectionState === 'connected' || 
+          peerConnection.iceConnectionState === 'completed') {
+        console.log('✅ ICE connection successful!');
+      } else if (peerConnection.iceConnectionState === 'failed') {
+        console.log('❌ ICE connection failed');
+      }
     };
 
+    // ICE gathering state
+    peerConnection.onicegatheringstatechange = () => {
+      console.log('❄️ ICE gathering state:', peerConnection.iceGatheringState);
+    };
+
+    // Signaling state monitoring
     peerConnection.onsignalingstatechange = () => {
-      console.log('Signaling state:', peerConnection.signalingState);
+      console.log('📡 Signaling state:', peerConnection.signalingState);
     };
     
     return peerConnection;

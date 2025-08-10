@@ -725,16 +725,15 @@ body {
   font-weight: 600;
 }
 
-/* Chat minimized/expanded states */
+/* Chat minimized/expanded states - Updated for draggable chat */
 .chat-container {
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
   width: 300px;
   background: white;
   border-radius: 12px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+  transition: height 0.3s ease;
+  z-index: 1000;
+  user-select: none;
 }
 
 .chat-container.minimized {
@@ -751,10 +750,14 @@ body {
   background: #3182ce;
   color: white;
   border-radius: 12px 12px 0 0;
-  cursor: pointer;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  cursor: grab;
+}
+
+.chat-header:active {
+  cursor: grabbing;
 }
 
 .chat-header:hover {
@@ -767,6 +770,12 @@ body {
   color: white;
   cursor: pointer;
   font-size: 14px;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.chat-toggle:hover {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .chat-container .chat-messages {
@@ -776,21 +785,43 @@ body {
   background: #f7fafc;
 }
 
-.chat-container .chat-input {
-  padding: 10px;
+.chat-input-container {
   border-top: 1px solid #e2e8f0;
   background: white;
   border-radius: 0 0 12px 12px;
-  display: flex;
-  gap: 10px;
 }
 
-.chat-container .chat-input input {
+.chat-container .chat-input {
+  padding: 10px;
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.chat-container .chat-input input[type="text"] {
   flex: 1;
   padding: 8px;
   border: 1px solid #e2e8f0;
   border-radius: 6px;
   font-size: 14px;
+}
+
+.file-upload-btn {
+  background: #38a169;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 8px;
+  min-width: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.file-upload-btn:hover {
+  background: #2f855a;
 }
 
 .chat-container .chat-input button {
@@ -805,6 +836,39 @@ body {
 
 .chat-container .chat-input button:hover {
   background: #2c5282;
+}
+
+/* File message styles */
+.file-message {
+  margin-bottom: 5px;
+}
+
+.chat-image {
+  max-width: 200px;
+  max-height: 150px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.chat-image:hover {
+  transform: scale(1.05);
+}
+
+.chat-file-link {
+  display: inline-block;
+  background: #e2e8f0;
+  color: #2d3748;
+  padding: 8px 12px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 14px;
+  transition: background 0.2s ease;
+}
+
+.chat-file-link:hover {
+  background: #cbd5e0;
+  color: #1a202c;
 }
 
 /* Professional tips */

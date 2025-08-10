@@ -209,9 +209,10 @@ function App() {
     }
   };
 
-  const loadProfessionals = async () => {
+  const loadProfessionals = async (category = null) => {
     try {
-      const data = await apiCall('/api/professionals');
+      const endpoint = category ? `/api/professionals?category=${encodeURIComponent(category)}` : '/api/professionals';
+      const data = await apiCall(endpoint);
       if (data) {
         setProfessionals(data);
       }

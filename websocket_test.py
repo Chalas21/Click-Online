@@ -38,10 +38,13 @@ class WebSocketTester:
         """Setup test users via REST API"""
         print("\n🔧 Setting up test users...")
         
+        # Generate unique emails with timestamp
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        
         # Register professional
         professional_data = {
             "name": "Dr. Ana Costa",
-            "email": "ana.costa@clinic.com",
+            "email": f"ana.costa.{timestamp}@clinic.com",
             "password": "secure123",
             "role": "professional",
             "specialization": "Cardiologista",
@@ -57,6 +60,7 @@ class WebSocketTester:
                 print(f"   Professional registered: {self.professional_id}")
             else:
                 print(f"   Professional registration failed: {response.status_code}")
+                print(f"   Response: {response.text}")
                 return False
         except Exception as e:
             print(f"   Professional registration error: {e}")
@@ -65,7 +69,7 @@ class WebSocketTester:
         # Register user
         user_data = {
             "name": "Carlos Silva",
-            "email": "carlos.silva@email.com",
+            "email": f"carlos.silva.{timestamp}@email.com",
             "password": "secure123",
             "role": "user"
         }
@@ -79,6 +83,7 @@ class WebSocketTester:
                 print(f"   User registered: {self.user_id}")
             else:
                 print(f"   User registration failed: {response.status_code}")
+                print(f"   Response: {response.text}")
                 return False
         except Exception as e:
             print(f"   User registration error: {e}")

@@ -675,27 +675,38 @@ function App() {
             </button>
           </div>
 
-          <div className="chat-container">
-            <div className="chat-messages">
-              {chatMessages.map((msg, index) => (
-                <div key={index} className={`chat-message ${msg.from === user.id ? 'own' : 'other'}`}>
-                  <div className="message-content">{msg.message}</div>
-                  <div className="message-time">
-                    {new Date(msg.timestamp).toLocaleTimeString()}
-                  </div>
+          <div className={`chat-container ${chatMinimized ? 'minimized' : 'expanded'}`}>
+            <div className="chat-header" onClick={() => setChatMinimized(!chatMinimized)}>
+              <span>💬 Chat</span>
+              <button className="chat-toggle">
+                {chatMinimized ? '▲' : '▼'}
+              </button>
+            </div>
+            
+            {!chatMinimized && (
+              <>
+                <div className="chat-messages">
+                  {chatMessages.map((msg, index) => (
+                    <div key={index} className={`chat-message ${msg.from === user.id ? 'own' : 'other'}`}>
+                      <div className="message-content">{msg.message}</div>
+                      <div className="message-time">
+                        {new Date(msg.timestamp).toLocaleTimeString()}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-            <div className="chat-input">
-              <input
-                type="text"
-                value={chatInput}
-                onChange={(e) => setChatInput(e.target.value)}
-                placeholder="Digite uma mensagem..."
-                onKeyPress={(e) => e.key === 'Enter' && sendChatMessage()}
-              />
-              <button onClick={sendChatMessage}>Enviar</button>
-            </div>
+                <div className="chat-input">
+                  <input
+                    type="text"
+                    value={chatInput}
+                    onChange={(e) => setChatInput(e.target.value)}
+                    placeholder="Digite uma mensagem..."
+                    onKeyPress={(e) => e.key === 'Enter' && sendChatMessage()}
+                  />
+                  <button onClick={sendChatMessage}>Enviar</button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       ) : (

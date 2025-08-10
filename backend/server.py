@@ -261,7 +261,16 @@ async def update_profile(profile_data: ProfileUpdate, current_user: dict = Depen
             raise HTTPException(status_code=400, detail="Preço deve estar entre 1 e 100 tokens por minuto")
         update_fields["price_per_minute"] = profile_data.price_per_minute
     
-    if update_fields:
+    if profile_data.description is not None:
+        if len(profile_data.description) > 300:
+            raise HTTPException(status_code=400, detail="Descrição deve ter no máximo 300 caracteres")
+        update_fields["description"] = profile_data.description
+        
+    if profile_data.profile_photo is not None:
+        # Basic URL validation
+        if profile_data.profile_photo and not profile_data.profile_photo.startswith(('http://', 'https://')):
+            raise HTTPException(status_code=400, detail="URL da foto deve começar com http:// ou https://")
+        update_fields["profile_photo"] = profile_data.profile_photo
         await db.users.update_one(
             {"_id": ObjectId(current_user["_id"])},
             {"$set": update_fields}

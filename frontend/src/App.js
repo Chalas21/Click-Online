@@ -807,20 +807,8 @@ function App() {
             </button>
           </div>
 
-          <div 
-            className={`chat-container ${chatMinimized ? 'minimized' : 'expanded'}`}
-            style={{
-              position: 'fixed',
-              right: `${chatPosition.x}px`,
-              bottom: `${chatPosition.y}px`,
-              cursor: isDragging ? 'grabbing' : 'auto'
-            }}
-          >
-            <div 
-              className="chat-header" 
-              onMouseDown={handleMouseDown}
-              style={{ cursor: 'grab' }}
-            >
+          <div className={`chat-container ${chatMinimized ? 'minimized' : 'expanded'}`}>
+            <div className="chat-header">
               <span>💬 Chat</span>
               <button 
                 className="chat-toggle"

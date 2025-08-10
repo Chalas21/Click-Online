@@ -528,19 +528,12 @@ class ClickOnlineAPITester:
 
     def test_websocket_file_message_handling(self):
         """Test WebSocket file message handling (simulated)"""
-        import websocket
-        import json
-        import threading
-        import time
+        print("\n🔍 Testing WebSocket File Message Support...")
         
         # This test simulates WebSocket file message functionality
         # Since we can't easily test real WebSocket connections in this environment,
         # we'll verify the backend code structure supports file messages
         
-        print("\n🔍 Testing WebSocket File Message Support...")
-        
-        # Check if the backend has file message handling in WebSocket endpoint
-        # We can verify this by checking the server.py code structure
         try:
             with open('/app/backend/server.py', 'r') as f:
                 server_code = f.read()

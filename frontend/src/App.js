@@ -991,21 +991,43 @@ function App() {
                 <div className="professionals-grid">
                   {professionals.map(prof => (
                     <div key={prof.id} className="professional-card">
-                      <div className="prof-header">
-                        <h3>{prof.name}</h3>
-                        <span className={`status-badge status-${prof.status}`}>
-                          {prof.status === 'online' ? '🟢 Disponível' : '🟡 Ocupado'}
-                        </span>
+                      <div className="prof-photo">
+                        {prof.profile_photo ? (
+                          <img 
+                            src={prof.profile_photo} 
+                            alt={prof.name}
+                            onError={(e) => {
+                              e.target.src = '/api/placeholder/150/150?text=' + encodeURIComponent(prof.name.split(' ').map(n => n[0]).join(''));
+                            }}
+                          />
+                        ) : (
+                          <div className="photo-placeholder">
+                            {prof.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                          </div>
+                        )}
                       </div>
-                      <p><strong>Categoria:</strong> {prof.category === 'Médico' ? '👨‍⚕️ Médico' : '🧠 Psicólogo'}</p>
-                      <p><strong>Preço:</strong> {prof.price_per_minute} tokens/min</p>
-                      <button
-                        onClick={() => initiateCall(prof.id)}
-                        disabled={prof.status !== 'online'}
-                        className="call-btn"
-                      >
-                        {prof.status === 'online' ? '📞 Chamar' : '🔴 Ocupado'}
-                      </button>
+                      <div className="prof-info">
+                        <div className="prof-header">
+                          <h3>{prof.name}</h3>
+                          <span className={`status-badge status-${prof.status}`}>
+                            {prof.status === 'online' ? '🟢 Disponível' : '🟡 Ocupado'}
+                          </span>
+                        </div>
+                        <p><strong>Categoria:</strong> {prof.category === 'Médico' ? '👨‍⚕️ Médico' : '🧠 Psicólogo'}</p>
+                        <p><strong>Preço:</strong> {prof.price_per_minute} tokens/min</p>
+                        {prof.description && (
+                          <p className="prof-description">
+                            <strong>Descrição:</strong> {prof.description}
+                          </p>
+                        )}
+                        <button
+                          onClick={() => initiateCall(prof.id)}
+                          disabled={prof.status !== 'online'}
+                          className="call-btn"
+                        >
+                          {prof.status === 'online' ? '📞 Chamar' : '🔴 Ocupado'}
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>

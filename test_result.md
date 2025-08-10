@@ -126,6 +126,78 @@ backend:
           agent: "testing"
           comment: "FINAL WEBSOCKET VERIFICATION COMPLETED: Conducted comprehensive end-to-end testing of all WebSocket functionality. ✅ Backend WebSocket endpoint /api/ws/{user_id} working correctly. ✅ Connection management and user authentication working. ✅ Real-time notifications system working. ✅ WebRTC signaling relay working. ✅ Chat message exchange working. ✅ Call flow management working. ✅ Professional status updates working. ✅ WebSocket reconnection behavior working. All WebSocket fixes applied by main agent are functioning correctly in production environment."
 
+  - task: "Unified User System"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "UNIFIED USER SYSTEM TESTING COMPLETED: ✅ All users now start as regular users with role='user' instead of separate professional/user roles. ✅ Registration creates users with 1000 tokens and professional_mode=false by default. ✅ Professional mode can be activated later via profile settings. ✅ Both registration endpoints work correctly with simplified user data (no role selection required). ✅ User authentication and token generation working properly. All unified system features working as designed."
+
+  - task: "Updated Token System"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "UPDATED TOKEN SYSTEM TESTING COMPLETED: ✅ Users start with 1000 tokens instead of previous amounts. ✅ Default rate is 1 token/minute instead of 5 tokens/minute. ✅ Token balance properly initialized during registration. ✅ Token calculations working correctly in call flow. ✅ Minimum call cost is 10 tokens regardless of duration. ✅ Professional earnings calculated with 15% platform fee. All token system updates working correctly."
+
+  - task: "Category System"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "CATEGORY SYSTEM TESTING COMPLETED: ✅ Category validation working for 'Médico' and 'Psicólogo' categories only. ✅ Invalid categories properly rejected with 400 error. ✅ Category can be updated via profile endpoint. ✅ Default category 'Médico' set when enabling professional mode without specifying category. ✅ Professional listing displays category instead of old specialization field. All category system features working correctly."
+
+  - task: "Profile Settings API"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "PROFILE SETTINGS API TESTING COMPLETED: ✅ New /api/profile endpoint working correctly for updating user settings. ✅ Name updates working properly. ✅ Professional mode toggle (enable/disable) working correctly. ✅ Category updates with validation working. ✅ Price per minute updates with validation (1-100 tokens) working. ✅ Partial updates supported (only specified fields updated). ✅ Authentication required and working. All profile update functionality working as designed."
+
+  - task: "Professional Mode Toggle"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "PROFESSIONAL MODE TOGGLE TESTING COMPLETED: ✅ Professional mode can be enabled via profile update with professional_mode=true. ✅ Professional mode can be disabled via profile update with professional_mode=false. ✅ Enabling professional mode sets default category 'Médico' if not specified. ✅ Professional listing filters by professional_mode=true instead of role. ✅ Professional mode status properly reflected in user info endpoints. ✅ Call flow works correctly with professional mode users. All professional mode toggle functionality working correctly."
+
+  - task: "API Endpoints Integration"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "API ENDPOINTS INTEGRATION TESTING COMPLETED: ✅ POST /api/register working with simplified registration (no role selection). ✅ PUT /api/profile working for all profile updates. ✅ GET /api/professionals filtering by professional_mode=true. ✅ All existing endpoints (login, me, status, calls) working with new user model. ✅ Call flow (initiate, accept, end) working with updated token calculations. ✅ Authentication and authorization working across all endpoints. ✅ Error handling and validation working properly. All API integration working correctly with new features."
+
 frontend:
   - task: "WebSocket Client Connection"
     implemented: true

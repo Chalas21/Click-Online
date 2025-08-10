@@ -42,7 +42,8 @@ function App() {
   // Initialize WebSocket connection
   useEffect(() => {
     if (user && !websocketRef.current) {
-      const wsUrl = API_BASE_URL.replace('http', 'ws') + `/ws/${user.id}`;
+      // Properly construct WebSocket URL for HTTPS->WSS and add /api prefix
+      const wsUrl = API_BASE_URL.replace('https://', 'wss://').replace('http://', 'ws://') + `/api/ws/${user.id}`;
       websocketRef.current = new WebSocket(wsUrl);
       
       websocketRef.current.onmessage = async (event) => {

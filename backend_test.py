@@ -60,9 +60,10 @@ class ClickOnlineAPITester:
         """Test user registration (unified system - all users start as regular users)"""
         import time
         timestamp = int(time.time())
+        self.professional_email = f"doctor{timestamp}@test.com"
         professional_data = {
             "name": "Dr. João Silva",
-            "email": f"doctor{timestamp}@test.com",
+            "email": self.professional_email,
             "password": "test123"
         }
         

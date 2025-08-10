@@ -459,6 +459,17 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
                         "from": user_id,
                         "timestamp": datetime.utcnow().isoformat()
                     })
+            
+            # Handle file messages
+            elif message["type"] == "file_message":
+                target_user = message.get("target")
+                if target_user:
+                    await manager.send_to_user(target_user, {
+                        "type": "file_message",
+                        "file": message["file"],
+                        "from": user_id,
+                        "timestamp": datetime.utcnow().isoformat()
+                    })
                     
     except WebSocketDisconnect:
         manager.disconnect(connection_id, user_id)

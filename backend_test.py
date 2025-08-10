@@ -4,7 +4,7 @@ import json
 from datetime import datetime
 
 class ClickOnlineAPITester:
-    def __init__(self, base_url="https://63a3279f-6c18-4cf9-a334-5ea5679398b6.preview.emergentagent.com"):
+    def __init__(self, base_url="https://5b150b65-5d96-4838-871d-ad852054efe0.preview.emergentagent.com"):
         self.base_url = base_url
         self.user_token = None
         self.professional_token = None

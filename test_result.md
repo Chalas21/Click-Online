@@ -225,8 +225,12 @@ metadata:
 
 test_plan:
   current_focus:
-    - "WebSocket Real-time Connection"
-    - "WebSocket Client Connection"
+    - "Unified User System"
+    - "Updated Token System"
+    - "Category System"
+    - "Profile Settings API"
+    - "Professional Mode Toggle"
+    - "API Endpoints Integration"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"

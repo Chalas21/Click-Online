@@ -966,6 +966,11 @@ def main():
         ("WebSocket Chat Message Support", tester.test_websocket_chat_message_handling),
         ("WebSocket WebRTC Signaling", tester.test_websocket_webrtc_signaling),
         ("Enhanced Error Messages", tester.test_enhanced_error_messages_validation),
+        # NEW TESTS FOR LATEST IMPROVEMENTS
+        ("Profile Photo and Description", tester.test_profile_photo_and_description_update),
+        ("Professional Listings with New Fields", tester.test_professional_listing_with_new_fields),
+        ("Placeholder Image API", tester.test_placeholder_image_api),
+        ("User Serialization with New Fields", tester.test_user_serialization_with_new_fields),
     ]
     
     # Run all tests

@@ -312,6 +312,28 @@ class ClickOnlineAPITester:
         
         return success and success_invalid and success_invalid2
 
+    def test_disable_professional_mode(self):
+        """Test disabling professional mode"""
+        profile_data = {
+            "professional_mode": False
+        }
+        
+        success, response = self.run_test(
+            "Disable Professional Mode",
+            "PUT",
+            "/api/profile",
+            200,
+            data=profile_data,
+            token=self.professional_token
+        )
+        
+        if success:
+            print(f"   Professional Mode: {response.get('professional_mode')}")
+            if response.get('professional_mode') == False:
+                print("   ✅ Professional mode disabled successfully")
+            return True
+        return False
+
     def test_get_me_user(self):
         """Test get current user info"""
         success, response = self.run_test(

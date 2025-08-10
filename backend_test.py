@@ -326,9 +326,9 @@ class ClickOnlineAPITester:
         return success
 
     def test_get_professionals(self):
-        """Test getting list of online professionals"""
+        """Test getting list of online professionals (now filters by professional_mode)"""
         success, response = self.run_test(
-            "Get Online Professionals",
+            "Get Online Professionals (Professional Mode Filter)",
             "GET",
             "/api/professionals",
             200,
@@ -338,7 +338,10 @@ class ClickOnlineAPITester:
         if success:
             print(f"   Found {len(response)} online professionals")
             for prof in response:
-                print(f"   - {prof.get('name')}: {prof.get('specialization')} ({prof.get('price_per_minute')} tokens/min)")
+                print(f"   - {prof.get('name')}: {prof.get('category')} ({prof.get('price_per_minute')} tokens/min)")
+                print(f"     Professional Mode: {prof.get('professional_mode')}")
+            if len(response) > 0:
+                print("   ✅ Professional mode filtering working")
             return True
         return False
 

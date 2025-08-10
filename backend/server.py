@@ -120,6 +120,8 @@ class ProfileUpdate(BaseModel):
     professional_mode: Optional[bool] = None
     category: Optional[str] = None
     price_per_minute: Optional[float] = None
+    description: Optional[str] = None
+    profile_photo: Optional[str] = None
 
 class StatusUpdate(BaseModel):
     status: UserStatus

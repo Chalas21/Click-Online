@@ -534,14 +534,30 @@ function App() {
   };
 
   const handleAnswer = async (answer) => {
-    console.log('Handling answer...');
+    console.log('📨 Handling answer...');
+    console.log('📄 Answer received:', answer.type, answer.sdp?.length, 'chars');
+    
     if (peerConnectionRef.current) {
       try {
+        console.log('📥 Setting remote description (answer)...');
         await peerConnectionRef.current.setRemoteDescription(new RTCSessionDescription(answer));
-        console.log('Remote description set successfully');
+        console.log('✅ Remote description set successfully (caller)');
+        
+        // Check connection state after setting answer
+        console.log('📊 Connection state after answer:', peerConnectionRef.current.connectionState);
+        console.log('📊 ICE connection state after answer:', peerConnectionRef.current.iceConnectionState);
+        
       } catch (error) {
-        console.error('Error setting remote description:', error);
+        console.error('❌ Error setting remote description (answer):', error);
+        // Try to recover by restarting ICE
+        try {
+          peerConnectionRef.current.restartIce();
+        } catch (restartError) {
+          console.error('❌ Failed to restart ICE:', restartError);
+        }
       }
+    } else {
+      console.error('❌ No peer connection available to handle answer');
     }
   };
 

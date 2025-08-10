@@ -124,7 +124,7 @@ class WebRTCTester:
         try:
             # Test user WebSocket connection
             user_ws_url = f"{self.ws_url}/api/ws/{self.user_id}"
-            async with websockets.connect(user_ws_url, timeout=10) as user_ws:
+            async with websockets.connect(user_ws_url) as user_ws:
                 self.log_test("User WebSocket Connection", True, f"Connected to {user_ws_url}")
                 
                 # Test professional WebSocket connection

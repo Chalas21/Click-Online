@@ -46,6 +46,19 @@ function App() {
       const wsUrl = API_BASE_URL.replace('https://', 'wss://').replace('http://', 'ws://') + `/api/ws/${user.id}`;
       websocketRef.current = new WebSocket(wsUrl);
       
+      websocketRef.current.onopen = () => {
+        console.log('WebSocket connected successfully');
+      };
+      
+      websocketRef.current.onerror = (error) => {
+        console.error('WebSocket connection error:', error);
+      };
+      
+      websocketRef.current.onclose = (event) => {
+        console.log('WebSocket connection closed:', event.code, event.reason);
+        websocketRef.current = null;
+      };
+      
       websocketRef.current.onmessage = async (event) => {
         const message = JSON.parse(event.data);
         

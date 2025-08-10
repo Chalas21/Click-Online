@@ -566,6 +566,76 @@ function App() {
         </div>
       </header>
 
+      {/* Settings Modal */}
+      {showSettings && (
+        <div className="settings-modal">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h2>⚙️ Configurações do Perfil</h2>
+              <button onClick={() => setShowSettings(false)} className="close-btn">✕</button>
+            </div>
+            
+            <form onSubmit={updateSettings} className="settings-form">
+              <div className="form-group">
+                <label>Nome:</label>
+                <input
+                  type="text"
+                  value={settingsData.name}
+                  onChange={(e) => setSettingsData({...settingsData, name: e.target.value})}
+                  placeholder="Seu nome completo"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={settingsData.professional_mode}
+                    onChange={(e) => setSettingsData({...settingsData, professional_mode: e.target.checked})}
+                  />
+                  Ativar modo profissional
+                </label>
+              </div>
+
+              {settingsData.professional_mode && (
+                <>
+                  <div className="form-group">
+                    <label>Categoria:</label>
+                    <select
+                      value={settingsData.category}
+                      onChange={(e) => setSettingsData({...settingsData, category: e.target.value})}
+                    >
+                      <option value="Médico">👨‍⚕️ Médico</option>
+                      <option value="Psicólogo">🧠 Psicólogo</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Preço por minuto (tokens):</label>
+                    <input
+                      type="number"
+                      value={settingsData.price_per_minute}
+                      onChange={(e) => setSettingsData({...settingsData, price_per_minute: parseInt(e.target.value) || 1})}
+                      min="1"
+                      max="100"
+                    />
+                  </div>
+                </>
+              )}
+
+              <div className="modal-actions">
+                <button type="button" onClick={() => setShowSettings(false)} className="cancel-btn">
+                  Cancelar
+                </button>
+                <button type="submit" disabled={loading} className="save-btn">
+                  {loading ? 'Salvando...' : 'Salvar'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* Incoming Call Modal */}
       {incomingCall && (
         <div className="incoming-call-modal">

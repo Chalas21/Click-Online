@@ -11,8 +11,10 @@ function App() {
   const [remoteVideo, setRemoteVideo] = useState(null);
   const [chatMessages, setChatMessages] = useState([]);
   const [chatInput, setChatInput] = useState('');
+  const [chatMinimized, setChatMinimized] = useState(true);
   const [loading, setLoading] = useState(false);
   const [incomingCall, setIncomingCall] = useState(null);
+  const [showSettings, setShowSettings] = useState(false);
 
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);

@@ -122,8 +122,13 @@ class ClickOnlineAPITester:
 
     def test_login_professional(self):
         """Test professional login"""
+        # Use the same timestamp-based email from registration
+        if not hasattr(self, 'professional_email'):
+            print("❌ Professional email not available from registration")
+            return False
+            
         login_data = {
-            "email": "doctor@test.com",
+            "email": self.professional_email,
             "password": "test123"
         }
         
@@ -143,8 +148,13 @@ class ClickOnlineAPITester:
 
     def test_login_user(self):
         """Test user login"""
+        # Use the same timestamp-based email from registration
+        if not hasattr(self, 'user_email'):
+            print("❌ User email not available from registration")
+            return False
+            
         login_data = {
-            "email": "user@test.com",
+            "email": self.user_email,
             "password": "test123"
         }
         

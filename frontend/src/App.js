@@ -559,7 +559,9 @@ function App() {
         <h1>Click Online</h1>
         <div className="header-info">
           <span>{user.name}</span>
+          {user.professional_mode && <span className="pro-badge">👨‍⚕️ Profissional</span>}
           <span className="token-balance">💰 {user.token_balance} tokens</span>
+          <button onClick={() => setShowSettings(true)} className="settings-btn">⚙️</button>
           <button onClick={handleLogout} className="logout-btn">Sair</button>
         </div>
       </header>

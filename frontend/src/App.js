@@ -145,14 +145,14 @@ function App() {
     }
   }, [user]);
 
-  // Load professionals when user logs in
+  // Load professionals after category selection
   useEffect(() => {
-    if (user) {
-      loadProfessionals();
-      const interval = setInterval(loadProfessionals, 10000); // Refresh every 10 seconds
+    if (user && selectedCategory) {
+      loadProfessionals(selectedCategory);
+      const interval = setInterval(() => loadProfessionals(selectedCategory), 10000);
       return () => clearInterval(interval);
     }
-  }, [user]);
+  }, [user, selectedCategory]);
 
   const apiCall = async (endpoint, options = {}) => {
     const token = localStorage.getItem('token');

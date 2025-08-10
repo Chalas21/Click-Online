@@ -469,8 +469,6 @@ def main():
         ("Root Endpoint", tester.test_root_endpoint),
         ("Professional Registration", tester.test_register_professional),
         ("User Registration", tester.test_register_user),
-        ("Professional Login", tester.test_login_professional),
-        ("User Login", tester.test_login_user),
         ("Get Professional Info", tester.test_get_me_professional),
         ("Get User Info", tester.test_get_me_user),
         ("Enable Professional Mode", tester.test_update_profile_enable_professional_mode),

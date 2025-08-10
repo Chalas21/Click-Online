@@ -185,15 +185,13 @@ async def register(user_data: UserCreate):
         "name": user_data.name,
         "email": user_data.email,
         "password": hash_password(user_data.password),
-        "role": user_data.role,
+        "role": "user",  # All users start as regular users
         "status": "offline",
-        "token_balance": 100,  # Give 100 tokens for MVP
+        "token_balance": 1000,  # Give 1000 tokens for MVP
+        "professional_mode": False,  # Can be activated later in settings
+        "price_per_minute": 1,  # Default 1 token per minute
         "created_at": datetime.utcnow()
     }
-    
-    if user_data.role == "professional":
-        user_dict["specialization"] = user_data.specialization
-        user_dict["price_per_minute"] = user_data.price_per_minute or 5
     
     result = await db.users.insert_one(user_dict)
     user_id = str(result.inserted_id)

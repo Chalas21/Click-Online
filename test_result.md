@@ -101,3 +101,49 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: "Fix WebSocket real-time notifications connectivity issues for Click Online video calling platform. The platform has authentication, token system, and WebRTC working but WebSocket connections for real-time notifications are failing."
+
+backend:
+  - task: "WebSocket Real-time Connection"
+    implemented: true
+    working: false
+    file: "/app/backend/server.py"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: false
+          agent: "main"
+          comment: "WebSocket endpoint at /ws/{user_id} missing /api prefix required by Kubernetes ingress rules. All backend API endpoints must be prefixed with '/api' for proper routing."
+
+frontend:
+  - task: "WebSocket Client Connection"
+    implemented: true
+    working: false
+    file: "/app/frontend/src/App.js"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: false
+          agent: "main"
+          comment: "WebSocket URL construction at line 45 has issues: 1) Simple replace('http', 'ws') doesn't properly handle HTTPS->WSS conversion 2) Missing /api prefix in WebSocket URL path"
+
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 1
+  run_ui: false
+
+test_plan:
+  current_focus:
+    - "WebSocket Real-time Connection"
+    - "WebSocket Client Connection"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+    - agent: "main"
+      message: "Identified WebSocket connectivity issues: 1) Backend WebSocket endpoint missing /api prefix 2) Frontend WebSocket URL construction not handling HTTPS properly 3) Need to ensure proper routing through Kubernetes ingress. Will fix backend endpoint first, then frontend connection logic."

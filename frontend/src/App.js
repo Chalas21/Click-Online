@@ -268,6 +268,11 @@ function App() {
     }
   }, [user, selectedCategory]);
 
+  // Initialize device detection on component mount
+  useEffect(() => {
+    detectAvailableDevices();
+  }, []);
+
   const updateSettings = async (e) => {
     e.preventDefault();
     setLoading(true);

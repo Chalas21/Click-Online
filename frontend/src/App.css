@@ -753,10 +753,10 @@ body {
   font-weight: 600;
 }
 
-/* Chat fixed position - bottom left */
+/* Chat fixed position - bottom left, moved up to avoid Emergent watermark */
 .chat-container {
   position: fixed;
-  bottom: 20px;
+  bottom: 80px;
   left: 20px;
   width: 300px;
   background: white;

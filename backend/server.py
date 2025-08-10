@@ -115,6 +115,12 @@ class UserResponse(BaseModel):
 class CallRequest(BaseModel):
     professional_id: str
 
+class ProfileUpdate(BaseModel):
+    name: Optional[str] = None
+    professional_mode: Optional[bool] = None
+    category: Optional[str] = None
+    price_per_minute: Optional[float] = None
+
 class StatusUpdate(BaseModel):
     status: UserStatus
 

@@ -1172,24 +1172,3 @@ body {
     gap: 10px;
   }
 }
-  .professional-card {
-    flex-direction: column;
-    text-align: center;
-  }
-  
-  .prof-photo {
-    align-self: center;
-  }
-  
-  .prof-header {
-    justify-content: center;
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  .chat-container {
-    left: 10px;
-    right: 10px;
-    width: auto;
-  }
-}

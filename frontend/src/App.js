@@ -804,10 +804,25 @@ function App() {
             </button>
           </div>
 
-          <div className={`chat-container ${chatMinimized ? 'minimized' : 'expanded'}`}>
-            <div className="chat-header" onClick={() => setChatMinimized(!chatMinimized)}>
+          <div 
+            className={`chat-container ${chatMinimized ? 'minimized' : 'expanded'}`}
+            style={{
+              position: 'fixed',
+              right: `${chatPosition.x}px`,
+              bottom: `${chatPosition.y}px`,
+              cursor: isDragging ? 'grabbing' : 'auto'
+            }}
+          >
+            <div 
+              className="chat-header" 
+              onMouseDown={handleMouseDown}
+              style={{ cursor: 'grab' }}
+            >
               <span>💬 Chat</span>
-              <button className="chat-toggle">
+              <button 
+                className="chat-toggle"
+                onClick={() => setChatMinimized(!chatMinimized)}
+              >
                 {chatMinimized ? '▲' : '▼'}
               </button>
             </div>
@@ -817,22 +832,67 @@ function App() {
                 <div className="chat-messages">
                   {chatMessages.map((msg, index) => (
                     <div key={index} className={`chat-message ${msg.from === user.id ? 'own' : 'other'}`}>
-                      <div className="message-content">{msg.message}</div>
-                      <div className="message-time">
-                        {new Date(msg.timestamp).toLocaleTimeString()}
-                      </div>
+                      {msg.message && (
+                        <>
+                          <div className="message-content">{msg.message}</div>
+                          <div className="message-time">
+                            {new Date(msg.timestamp).toLocaleTimeString()}
+                          </div>
+                        </>
+                      )}
+                      {msg.file && (
+                        <>
+                          <div className="file-message">
+                            {msg.file.type.startsWith('image/') ? (
+                              <img 
+                                src={msg.file.data} 
+                                alt={msg.file.name}
+                                className="chat-image"
+                                onClick={() => window.open(msg.file.data, '_blank')}
+                              />
+                            ) : (
+                              <a 
+                                href={msg.file.data} 
+                                download={msg.file.name}
+                                className="chat-file-link"
+                              >
+                                📄 {msg.file.name}
+                              </a>
+                            )}
+                          </div>
+                          <div className="message-time">
+                            {new Date(msg.timestamp).toLocaleTimeString()}
+                          </div>
+                        </>
+                      )}
                     </div>
                   ))}
                 </div>
-                <div className="chat-input">
-                  <input
-                    type="text"
-                    value={chatInput}
-                    onChange={(e) => setChatInput(e.target.value)}
-                    placeholder="Digite uma mensagem..."
-                    onKeyPress={(e) => e.key === 'Enter' && sendChatMessage()}
-                  />
-                  <button onClick={sendChatMessage}>Enviar</button>
+                <div className="chat-input-container">
+                  <div className="chat-input">
+                    <input
+                      type="text"
+                      value={chatInput}
+                      onChange={(e) => setChatInput(e.target.value)}
+                      placeholder="Digite uma mensagem..."
+                      onKeyPress={(e) => e.key === 'Enter' && sendChatMessage()}
+                    />
+                    <input
+                      type="file"
+                      id="fileUpload"
+                      accept="image/*,.pdf"
+                      onChange={handleFileUpload}
+                      style={{ display: 'none' }}
+                    />
+                    <button 
+                      onClick={() => document.getElementById('fileUpload').click()}
+                      className="file-upload-btn"
+                      title="Enviar imagem ou PDF"
+                    >
+                      📎
+                    </button>
+                    <button onClick={sendChatMessage}>Enviar</button>
+                  </div>
                 </div>
               </>
             )}

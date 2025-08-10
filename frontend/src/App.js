@@ -114,9 +114,21 @@ function App() {
     };
   }, [user]);
 
+  // Load user data into settings when user changes
+  useEffect(() => {
+    if (user) {
+      setSettingsData({
+        name: user.name || '',
+        professional_mode: user.professional_mode || false,
+        category: user.category || 'Médico',
+        price_per_minute: user.price_per_minute || 1
+      });
+    }
+  }, [user]);
+
   // Load professionals when user logs in
   useEffect(() => {
-    if (user && user.role === 'user') {
+    if (user) {
       loadProfessionals();
       const interval = setInterval(loadProfessionals, 10000); // Refresh every 10 seconds
       return () => clearInterval(interval);

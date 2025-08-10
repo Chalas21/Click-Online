@@ -271,6 +271,9 @@ async def update_profile(profile_data: ProfileUpdate, current_user: dict = Depen
         if profile_data.profile_photo and not profile_data.profile_photo.startswith(('http://', 'https://')):
             raise HTTPException(status_code=400, detail="URL da foto deve começar com http:// ou https://")
         update_fields["profile_photo"] = profile_data.profile_photo
+    
+    # Update user if there are any fields to update
+    if update_fields:
         await db.users.update_one(
             {"_id": ObjectId(current_user["_id"])},
             {"$set": update_fields}

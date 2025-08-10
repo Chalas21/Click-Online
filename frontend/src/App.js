@@ -1128,59 +1128,97 @@ function App() {
           ) : (
             // User Dashboard
             <div className="user-dashboard">
-              <h2>Profissionais Disponíveis</h2>
-              
-              {!user.professional_mode && (
-                <div className="become-professional">
-                  <p>💡 Você também pode ser um profissional! Clique em ⚙️ nas configurações para ativar.</p>
-                </div>
-              )}
-              
-              {professionals.length === 0 ? (
-                <p>Nenhum profissional online no momento.</p>
-              ) : (
-                <div className="professionals-grid">
-                  {professionals.map(prof => (
-                    <div key={prof.id} className="professional-card">
-                      <div className="prof-photo">
-                        {prof.profile_photo ? (
-                          <img 
-                            src={prof.profile_photo} 
-                            alt={prof.name}
-                            onError={(e) => {
-                              e.target.src = '/api/placeholder/150/150?text=' + encodeURIComponent(prof.name.split(' ').map(n => n[0]).join(''));
-                            }}
-                          />
-                        ) : (
-                          <div className="photo-placeholder">
-                            {prof.name.split(' ').map(n => n[0]).join('').toUpperCase()}
-                          </div>
-                        )}
-                      </div>
-                      <div className="prof-info">
-                        <div className="prof-header">
-                          <h3>{prof.name}</h3>
-                          <span className={`status-badge status-${prof.status}`}>
-                            {prof.status === 'online' ? '🟢 Disponível' : '🟡 Ocupado'}
-                          </span>
-                        </div>
-                        <p><strong>Categoria:</strong> {prof.category === 'Médico' ? '👨‍⚕️ Médico' : '🧠 Psicólogo'}</p>
-                        <p><strong>Preço:</strong> {prof.price_per_minute} tokens/min</p>
-                        {prof.description && (
-                          <p className="prof-description">
-                            <strong>Descrição:</strong> {prof.description}
-                          </p>
-                        )}
-                        <button
-                          onClick={() => initiateCall(prof.id)}
-                          disabled={prof.status !== 'online'}
-                          className="call-btn"
-                        >
-                          {prof.status === 'online' ? '📞 Chamar' : '🔴 Ocupado'}
-                        </button>
-                      </div>
+              {!selectedCategory ? (
+                // Category Selection Screen
+                <div className="category-selection">
+                  <h2>Escolha uma Categoria</h2>
+                  <p>Selecione o tipo de profissional que você deseja consultar:</p>
+                  
+                  <div className="category-grid">
+                    <div 
+                      className="category-card medical"
+                      onClick={() => selectCategory('Médico')}
+                    >
+                      <div className="category-icon">👨‍⚕️</div>
+                      <h3>Médico</h3>
+                      <p>Consultas médicas gerais, diagnósticos e orientações de saúde</p>
                     </div>
-                  ))}
+                    
+                    <div 
+                      className="category-card psychology"
+                      onClick={() => selectCategory('Psicólogo')}
+                    >
+                      <div className="category-icon">🧠</div>
+                      <h3>Psicólogo</h3>
+                      <p>Apoio psicológico, terapia e orientação emocional</p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                // Professionals List
+                <div className="professionals-section">
+                  <div className="professionals-header">
+                    <button onClick={backToCategorySelection} className="back-btn">
+                      ← Voltar às Categorias
+                    </button>
+                    <h2>{selectedCategory === 'Médico' ? '👨‍⚕️ Médicos' : '🧠 Psicólogos'} Disponíveis</h2>
+                  </div>
+                  
+                  {!user.professional_mode && (
+                    <div className="become-professional">
+                      <p>💡 Você também pode ser um profissional! Clique em ⚙️ nas configurações para ativar.</p>
+                    </div>
+                  )}
+                  
+                  {professionals.length === 0 ? (
+                    <p>Nenhum profissional encontrado nesta categoria.</p>
+                  ) : (
+                    <div className="professionals-grid">
+                      {professionals.map(prof => (
+                        <div key={prof.id} className="professional-card">
+                          <div className="prof-photo">
+                            {prof.profile_photo ? (
+                              <img 
+                                src={prof.profile_photo} 
+                                alt={prof.name}
+                                onError={(e) => {
+                                  e.target.src = '/api/placeholder/150/150?text=' + encodeURIComponent(prof.name.split(' ').map(n => n[0]).join(''));
+                                }}
+                              />
+                            ) : (
+                              <div className="photo-placeholder">
+                                {prof.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                              </div>
+                            )}
+                          </div>
+                          <div className="prof-info">
+                            <div className="prof-header">
+                              <h3>{prof.name}</h3>
+                              <span className={`status-badge status-${prof.status}`}>
+                                {prof.status === 'online' ? '🟢 Disponível' : 
+                                 prof.status === 'busy' ? '🟡 Ocupado' : '🔴 Offline'}
+                              </span>
+                            </div>
+                            <p><strong>Categoria:</strong> {prof.category === 'Médico' ? '👨‍⚕️ Médico' : '🧠 Psicólogo'}</p>
+                            <p><strong>Preço:</strong> {prof.price_per_minute} tokens/min</p>
+                            {prof.description && (
+                              <p className="prof-description">
+                                <strong>Descrição:</strong> {prof.description}
+                              </p>
+                            )}
+                            <button
+                              onClick={() => initiateCall(prof.id)}
+                              disabled={prof.status !== 'online'}
+                              className="call-btn"
+                            >
+                              {prof.status === 'online' ? '📞 Chamar' : 
+                               prof.status === 'busy' ? '🔴 Ocupado' : '⏰ Offline'}
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>

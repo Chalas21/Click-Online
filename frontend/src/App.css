@@ -1141,6 +1141,41 @@ body {
 .status-buttons button:hover {
   opacity: 0.8;
 }
+
+/* Responsive design updates */
+@media (max-width: 768px) {
+  .professional-card {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .prof-photo {
+    align-self: center;
+  }
+  
+  .prof-header {
+    justify-content: center;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .chat-container {
+    left: 10px;
+    right: 10px;
+    width: auto;
+  }
+  
+  .category-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .professionals-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+}
   .professional-card {
     flex-direction: column;
     text-align: center;

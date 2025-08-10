@@ -27,10 +27,15 @@ function App() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    password: '',
-    role: 'user',
-    specialization: '',
-    price_per_minute: 5
+    password: ''
+  });
+
+  // Settings form data
+  const [settingsData, setSettingsData] = useState({
+    name: '',
+    professional_mode: false,
+    category: 'Médico',
+    price_per_minute: 1
   });
 
   // WebRTC Configuration

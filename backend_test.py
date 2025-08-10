@@ -688,6 +688,253 @@ class ClickOnlineAPITester:
         
         return False
 
+    def test_profile_photo_and_description_update(self):
+        """Test new profile photo and description fields"""
+        print("\n🔍 Testing Profile Photo and Description Updates...")
+        
+        if not self.professional_token:
+            print("   ❌ No professional token available for profile tests")
+            self.tests_run += 1
+            return False
+        
+        # Test valid profile photo and description update
+        profile_data = {
+            "description": "Experienced medical professional with 10 years of practice in cardiology and general medicine.",
+            "profile_photo": "https://example.com/photos/doctor.jpg"
+        }
+        
+        success, response = self.run_test(
+            "Update Profile Photo and Description",
+            "PUT",
+            "/api/profile",
+            200,
+            data=profile_data,
+            token=self.professional_token
+        )
+        
+        if success:
+            if (response.get('description') == profile_data['description'] and 
+                response.get('profile_photo') == profile_data['profile_photo']):
+                print("   ✅ Profile photo and description updated successfully")
+                print(f"   Description: {response.get('description')[:50]}...")
+                print(f"   Profile Photo: {response.get('profile_photo')}")
+            else:
+                print("   ❌ Profile photo or description not updated correctly")
+                return False
+        else:
+            return False
+        
+        # Test description length validation (over 300 characters)
+        long_description = "A" * 301  # 301 characters
+        invalid_data = {
+            "description": long_description
+        }
+        
+        success2, response2 = self.run_test(
+            "Description Too Long (Should Fail)",
+            "PUT",
+            "/api/profile",
+            400,
+            data=invalid_data,
+            token=self.professional_token
+        )
+        
+        if success2:
+            error_detail = response2.get('detail', '')
+            if "300 caracteres" in error_detail:
+                print("   ✅ Description length validation working correctly")
+            else:
+                print(f"   ❌ Description length error message incorrect: {error_detail}")
+                return False
+        else:
+            return False
+        
+        # Test invalid profile photo URL
+        invalid_photo_data = {
+            "profile_photo": "invalid-url-without-protocol"
+        }
+        
+        success3, response3 = self.run_test(
+            "Invalid Profile Photo URL (Should Fail)",
+            "PUT",
+            "/api/profile",
+            400,
+            data=invalid_photo_data,
+            token=self.professional_token
+        )
+        
+        if success3:
+            error_detail3 = response3.get('detail', '')
+            if "http://" in error_detail3 and "https://" in error_detail3:
+                print("   ✅ Profile photo URL validation working correctly")
+                return True
+            else:
+                print(f"   ❌ Profile photo URL error message incorrect: {error_detail3}")
+                return False
+        
+        return False
+
+    def test_professional_listing_with_new_fields(self):
+        """Test that professional listings include new profile fields"""
+        print("\n🔍 Testing Professional Listings with New Profile Fields...")
+        
+        # First, enable professional mode and set profile data
+        profile_data = {
+            "professional_mode": True,
+            "category": "Médico",
+            "price_per_minute": 8,
+            "description": "Cardiologist with expertise in preventive medicine and patient care.",
+            "profile_photo": "https://example.com/photos/cardio-doctor.jpg"
+        }
+        
+        success_setup, response_setup = self.run_test(
+            "Setup Professional Profile with New Fields",
+            "PUT",
+            "/api/profile",
+            200,
+            data=profile_data,
+            token=self.professional_token
+        )
+        
+        if not success_setup:
+            print("   ❌ Failed to setup professional profile")
+            self.tests_run += 1
+            return False
+        
+        # Update status to online so professional appears in listings
+        success_status, response_status = self.run_test(
+            "Set Professional Status Online",
+            "PUT",
+            "/api/status",
+            200,
+            data={"status": "online"},
+            token=self.professional_token
+        )
+        
+        if not success_status:
+            print("   ❌ Failed to set professional status online")
+            self.tests_run += 1
+            return False
+        
+        # Now test professional listings
+        success, response = self.run_test(
+            "Get Professionals with New Profile Fields",
+            "GET",
+            "/api/professionals",
+            200,
+            token=self.user_token
+        )
+        
+        if success:
+            print(f"   Found {len(response)} online professionals")
+            
+            # Find our test professional in the list
+            test_professional = None
+            for prof in response:
+                if prof.get('id') == self.professional_id:
+                    test_professional = prof
+                    break
+            
+            if test_professional:
+                print(f"   Professional Name: {test_professional.get('name')}")
+                print(f"   Category: {test_professional.get('category')}")
+                print(f"   Price: {test_professional.get('price_per_minute')} tokens/min")
+                print(f"   Description: {test_professional.get('description', 'None')[:50]}...")
+                print(f"   Profile Photo: {test_professional.get('profile_photo', 'None')}")
+                
+                # Verify new fields are present
+                if (test_professional.get('description') and 
+                    test_professional.get('profile_photo') and
+                    test_professional.get('professional_mode') == True):
+                    print("   ✅ Professional listing includes new profile fields")
+                    self.tests_run += 1
+                    self.tests_passed += 1
+                    return True
+                else:
+                    print("   ❌ Professional listing missing new profile fields")
+                    self.tests_run += 1
+                    return False
+            else:
+                print("   ❌ Test professional not found in listings")
+                self.tests_run += 1
+                return False
+        
+        return False
+
+    def test_placeholder_image_api(self):
+        """Test the new placeholder image API endpoint"""
+        print("\n🔍 Testing Placeholder Image API...")
+        
+        success, response = self.run_test(
+            "Placeholder Image API",
+            "GET",
+            "/api/placeholder/150x150?text=Profile",
+            302  # Redirect response
+        )
+        
+        if success:
+            print("   ✅ Placeholder image API working (returns redirect)")
+            self.tests_run += 1
+            self.tests_passed += 1
+            return True
+        else:
+            print("   ❌ Placeholder image API not working")
+            self.tests_run += 1
+            return False
+
+    def test_user_serialization_with_new_fields(self):
+        """Test that user serialization includes new fields"""
+        print("\n🔍 Testing User Serialization with New Fields...")
+        
+        # Update user profile with new fields
+        profile_data = {
+            "description": "Regular user interested in health consultations.",
+            "profile_photo": "https://example.com/photos/user-avatar.jpg"
+        }
+        
+        success_update, response_update = self.run_test(
+            "Update User Profile with New Fields",
+            "PUT",
+            "/api/profile",
+            200,
+            data=profile_data,
+            token=self.user_token
+        )
+        
+        if not success_update:
+            print("   ❌ Failed to update user profile")
+            self.tests_run += 1
+            return False
+        
+        # Test /api/me endpoint includes new fields
+        success, response = self.run_test(
+            "Get User Info with New Fields",
+            "GET",
+            "/api/me",
+            200,
+            token=self.user_token
+        )
+        
+        if success:
+            print(f"   User Name: {response.get('name')}")
+            print(f"   Description: {response.get('description', 'None')}")
+            print(f"   Profile Photo: {response.get('profile_photo', 'None')}")
+            print(f"   Professional Mode: {response.get('professional_mode')}")
+            
+            # Verify new fields are present in serialization
+            if (response.get('description') == profile_data['description'] and 
+                response.get('profile_photo') == profile_data['profile_photo']):
+                print("   ✅ User serialization includes new profile fields")
+                self.tests_run += 1
+                self.tests_passed += 1
+                return True
+            else:
+                print("   ❌ User serialization missing new profile fields")
+                self.tests_run += 1
+                return False
+        
+        return False
+
 def main():
     print("🚀 Starting Click Online API Tests")
     print("=" * 50)

@@ -198,6 +198,66 @@ backend:
           agent: "testing"
           comment: "API ENDPOINTS INTEGRATION TESTING COMPLETED: ✅ POST /api/register working with simplified registration (no role selection). ✅ PUT /api/profile working for all profile updates. ✅ GET /api/professionals filtering by professional_mode=true. ✅ All existing endpoints (login, me, status, calls) working with new user model. ✅ Call flow (initiate, accept, end) working with updated token calculations. ✅ Authentication and authorization working across all endpoints. ✅ Error handling and validation working properly. All API integration working correctly with new features."
 
+  - task: "Duplicate User Detection Bug Fix"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "DUPLICATE USER DETECTION BUG FIX TESTING COMPLETED: ✅ Registration with existing email properly returns 400 error status. ✅ Portuguese error message correctly displayed: 'Email 'example@test.com' já está cadastrado. Faça login ou use outro email.' ✅ Error message is user-friendly and provides clear guidance. ✅ Duplicate detection working for all registration attempts. Bug fix verified and working correctly."
+
+  - task: "WebSocket File Message Support"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "WEBSOCKET FILE MESSAGE SUPPORT TESTING COMPLETED: ✅ WebSocket file_message type handling implemented in backend. ✅ File message relay functionality working through WebSocket manager. ✅ Proper message structure with file data, sender identification, and timestamp. ✅ Target user message routing working correctly. ✅ File messages properly formatted with 'from' field and ISO timestamp. All file upload functionality in chat working correctly via WebSocket."
+
+  - task: "Enhanced Error Messages"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "ENHANCED ERROR MESSAGES TESTING COMPLETED: ✅ Category validation error message in Portuguese: 'Categoria deve ser 'Médico' ou 'Psicólogo''. ✅ Price validation error message in Portuguese: 'Preço deve estar entre 1 e 100 tokens por minuto'. ✅ Duplicate user error message in Portuguese with clear guidance. ✅ All validation errors provide user-friendly Portuguese messages. Enhanced error messaging system working correctly."
+
+  - task: "WebSocket Chat Functionality"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "WEBSOCKET CHAT FUNCTIONALITY TESTING COMPLETED: ✅ Chat message handling implemented with proper message type 'chat_message'. ✅ Message relay working with sender identification ('from' field). ✅ Timestamp addition working with ISO format. ✅ Target user routing working correctly. ✅ Chat messages properly structured and relayed through WebSocket. Chat functionality verified working after maximizing/minimizing scenarios."
+
+  - task: "WebRTC Signaling Support"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "WEBRTC SIGNALING SUPPORT TESTING COMPLETED: ✅ All WebRTC message types supported: 'offer', 'answer', 'ice-candidate'. ✅ Target user handling working for WebRTC signaling. ✅ Sender identification ('from' field) properly added to signaling messages. ✅ WebRTC signaling relay working through WebSocket manager. ✅ Media permissions and WebRTC call setup supported through proper signaling. All WebRTC functionality working correctly."
+
 frontend:
   - task: "WebSocket Client Connection"
     implemented: true

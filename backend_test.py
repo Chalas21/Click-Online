@@ -496,6 +496,7 @@ def main():
         ("Enable Professional Mode", tester.test_update_profile_enable_professional_mode),
         ("Category Validation", tester.test_update_profile_category_validation),
         ("Price Validation", tester.test_update_profile_price_validation),
+        ("Disable Professional Mode", tester.test_disable_professional_mode),
         ("Update Professional Status", tester.test_update_professional_status),
         ("Get Online Professionals", tester.test_get_professionals),
         ("Initiate Call", tester.test_initiate_call),

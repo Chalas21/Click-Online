@@ -89,9 +89,11 @@ class ClickOnlineAPITester:
 
     def test_register_user(self):
         """Test user registration (unified system)"""
+        import time
+        timestamp = int(time.time())
         user_data = {
             "name": "Maria Santos",
-            "email": "user@test.com",
+            "email": f"user{timestamp}@test.com",
             "password": "test123"
         }
         

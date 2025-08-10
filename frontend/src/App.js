@@ -240,7 +240,7 @@ function App() {
     const peerConnection = new RTCPeerConnection(rtcConfig);
     
     peerConnection.onicecandidate = (event) => {
-      if (event.candidate && websocketRef.current) {
+      if (event.candidate && websocketRef.current && currentCall) {
         websocketRef.current.send(JSON.stringify({
           type: 'ice-candidate',
           candidate: event.candidate,
@@ -250,9 +250,19 @@ function App() {
     };
     
     peerConnection.ontrack = (event) => {
-      if (remoteVideoRef.current) {
+      console.log('Remote stream received:', event.streams[0]);
+      if (remoteVideoRef.current && event.streams[0]) {
         remoteVideoRef.current.srcObject = event.streams[0];
+        setRemoteVideo(event.streams[0]);
       }
+    };
+
+    peerConnection.onconnectionstatechange = () => {
+      console.log('Connection state:', peerConnection.connectionState);
+    };
+
+    peerConnection.oniceconnectionstatechange = () => {
+      console.log('ICE connection state:', peerConnection.iceConnectionState);
     };
     
     return peerConnection;

@@ -42,12 +42,15 @@ function App() {
     profile_photo: ''
   });
 
-  // WebRTC Configuration
+  // WebRTC Configuration with additional STUN servers
   const rtcConfig = {
     iceServers: [
       { urls: 'stun:stun.l.google.com:19302' },
-      { urls: 'stun:stun1.l.google.com:19302' }
-    ]
+      { urls: 'stun:stun1.l.google.com:19302' },
+      { urls: 'stun:stun2.l.google.com:19302' },
+      { urls: 'stun:stun3.l.google.com:19302' }
+    ],
+    iceCandidatePoolSize: 10
   };
 
   // Initialize WebSocket connection

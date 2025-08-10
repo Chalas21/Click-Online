@@ -171,10 +171,130 @@ class ClickOnlineAPITester:
         if success:
             print(f"   Name: {response.get('name')}")
             print(f"   Role: {response.get('role')}")
-            print(f"   Specialization: {response.get('specialization')}")
+            print(f"   Professional Mode: {response.get('professional_mode')}")
+            print(f"   Category: {response.get('category')}")
             print(f"   Status: {response.get('status')}")
             return True
         return False
+
+    def test_update_profile_enable_professional_mode(self):
+        """Test enabling professional mode via profile update"""
+        profile_data = {
+            "professional_mode": True,
+            "category": "Médico",
+            "price_per_minute": 5
+        }
+        
+        success, response = self.run_test(
+            "Enable Professional Mode",
+            "PUT",
+            "/api/profile",
+            200,
+            data=profile_data,
+            token=self.professional_token
+        )
+        
+        if success:
+            print(f"   Professional Mode: {response.get('professional_mode')}")
+            print(f"   Category: {response.get('category')}")
+            print(f"   Price Per Minute: {response.get('price_per_minute')}")
+            if response.get('professional_mode') == True and response.get('category') == "Médico":
+                print("   ✅ Professional mode enabled successfully")
+            return True
+        return False
+
+    def test_update_profile_category_validation(self):
+        """Test category validation in profile update"""
+        # Test valid category
+        profile_data = {
+            "category": "Psicólogo"
+        }
+        
+        success, response = self.run_test(
+            "Update Category to Psicólogo",
+            "PUT",
+            "/api/profile",
+            200,
+            data=profile_data,
+            token=self.professional_token
+        )
+        
+        if success and response.get('category') == "Psicólogo":
+            print("   ✅ Valid category update successful")
+        
+        # Test invalid category
+        invalid_profile_data = {
+            "category": "InvalidCategory"
+        }
+        
+        success_invalid, response_invalid = self.run_test(
+            "Invalid Category (Should Fail)",
+            "PUT",
+            "/api/profile",
+            400,
+            data=invalid_profile_data,
+            token=self.professional_token
+        )
+        
+        if success_invalid:
+            print("   ✅ Invalid category properly rejected")
+        
+        return success and success_invalid
+
+    def test_update_profile_price_validation(self):
+        """Test price validation in profile update"""
+        # Test valid price
+        profile_data = {
+            "price_per_minute": 10
+        }
+        
+        success, response = self.run_test(
+            "Update Price to 10 tokens/min",
+            "PUT",
+            "/api/profile",
+            200,
+            data=profile_data,
+            token=self.professional_token
+        )
+        
+        if success and response.get('price_per_minute') == 10:
+            print("   ✅ Valid price update successful")
+        
+        # Test invalid price (too high)
+        invalid_profile_data = {
+            "price_per_minute": 150
+        }
+        
+        success_invalid, response_invalid = self.run_test(
+            "Invalid Price Too High (Should Fail)",
+            "PUT",
+            "/api/profile",
+            400,
+            data=invalid_profile_data,
+            token=self.professional_token
+        )
+        
+        if success_invalid:
+            print("   ✅ Invalid high price properly rejected")
+        
+        # Test invalid price (too low)
+        invalid_profile_data2 = {
+            "price_per_minute": 0
+        }
+        
+        success_invalid2, response_invalid2 = self.run_test(
+            "Invalid Price Too Low (Should Fail)",
+            "PUT",
+            "/api/profile",
+            400,
+            data=invalid_profile_data2,
+            token=self.professional_token
+        )
+        
+        if success_invalid2:
+            print("   ✅ Invalid low price properly rejected")
+        
+        return success and success_invalid and success_invalid2
 
     def test_get_me_user(self):
         """Test get current user info"""

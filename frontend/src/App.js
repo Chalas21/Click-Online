@@ -517,41 +517,13 @@ function App() {
 
             <form onSubmit={handleAuth} className="auth-form">
               {authMode === 'register' && (
-                <>
-                  <input
-                    type="text"
-                    placeholder="Nome completo"
-                    value={formData.name}
-                    onChange={(e) => setFormData({...formData, name: e.target.value})}
-                    required
-                  />
-                  <select
-                    value={formData.role}
-                    onChange={(e) => setFormData({...formData, role: e.target.value})}
-                  >
-                    <option value="user">Usuário</option>
-                    <option value="professional">Profissional</option>
-                  </select>
-                  {formData.role === 'professional' && (
-                    <>
-                      <input
-                        type="text"
-                        placeholder="Especialização (ex: Advogado, Médico)"
-                        value={formData.specialization}
-                        onChange={(e) => setFormData({...formData, specialization: e.target.value})}
-                        required
-                      />
-                      <input
-                        type="number"
-                        placeholder="Preço por minuto (tokens)"
-                        value={formData.price_per_minute}
-                        onChange={(e) => setFormData({...formData, price_per_minute: parseInt(e.target.value) || 5})}
-                        min="1"
-                        max="100"
-                      />
-                    </>
-                  )}
-                </>
+                <input
+                  type="text"
+                  placeholder="Nome completo"
+                  value={formData.name}
+                  onChange={(e) => setFormData({...formData, name: e.target.value})}
+                  required
+                />
               )}
               
               <input

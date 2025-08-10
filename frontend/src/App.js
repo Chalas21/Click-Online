@@ -711,7 +711,7 @@ function App() {
         </div>
       ) : (
         <div className="main-content">
-          {user.role === 'professional' ? (
+          {user.professional_mode ? (
             // Professional Dashboard
             <div className="professional-dashboard">
               <div className="status-controls">
@@ -734,7 +734,7 @@ function App() {
               
               <div className="professional-info">
                 <h3>Suas informações</h3>
-                <p><strong>Especialização:</strong> {user.specialization}</p>
+                <p><strong>Categoria:</strong> {user.category || 'Não definida'}</p>
                 <p><strong>Preço por minuto:</strong> {user.price_per_minute} tokens</p>
                 <p><strong>Saldo:</strong> {user.token_balance} tokens</p>
               </div>
@@ -752,6 +752,12 @@ function App() {
             <div className="user-dashboard">
               <h2>Profissionais Disponíveis</h2>
               
+              {!user.professional_mode && (
+                <div className="become-professional">
+                  <p>💡 Você também pode ser um profissional! Clique em ⚙️ nas configurações para ativar.</p>
+                </div>
+              )}
+              
               {professionals.length === 0 ? (
                 <p>Nenhum profissional online no momento.</p>
               ) : (
@@ -764,7 +770,7 @@ function App() {
                           {prof.status === 'online' ? '🟢 Disponível' : '🟡 Ocupado'}
                         </span>
                       </div>
-                      <p><strong>Especialização:</strong> {prof.specialization}</p>
+                      <p><strong>Categoria:</strong> {prof.category === 'Médico' ? '👨‍⚕️ Médico' : '🧠 Psicólogo'}</p>
                       <p><strong>Preço:</strong> {prof.price_per_minute} tokens/min</p>
                       <button
                         onClick={() => initiateCall(prof.id)}

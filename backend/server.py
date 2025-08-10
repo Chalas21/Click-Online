@@ -264,10 +264,19 @@ async def update_profile(profile_data: ProfileUpdate, current_user: dict = Depen
     
     return serialize_user(current_user)
 
+@app.put("/api/status")
+async def update_status(status_update: StatusUpdate, current_user: dict = Depends(get_current_user)):
+    await db.users.update_one(
+        {"_id": ObjectId(current_user["_id"])},
+        {"$set": {"status": status_update.status}}
+    )
+    
+    return {"message": "Status updated successfully"}
+
 @app.get("/api/professionals")
 async def get_professionals():
     professionals = await db.users.find({
-        "role": "professional",
+        "professional_mode": True,
         "status": {"$in": ["online", "busy"]}
     }).to_list(100)
     

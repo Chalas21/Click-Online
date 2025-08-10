@@ -1021,8 +1021,126 @@ body {
   color: #2c5282;
 }
 
-/* Responsive design updates */
-@media (max-width: 768px) {
+/* Category Selection Styles */
+.category-selection {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.category-selection h2 {
+  color: #2d3748;
+  margin-bottom: 10px;
+  font-size: 28px;
+}
+
+.category-selection p {
+  color: #718096;
+  margin-bottom: 40px;
+  font-size: 16px;
+}
+
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.category-card {
+  background: white;
+  border-radius: 20px;
+  padding: 30px 20px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.category-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+.category-card.medical:hover {
+  border-color: #3182ce;
+  background: linear-gradient(135deg, #ebf8ff 0%, #bee3f8 100%);
+}
+
+.category-card.psychology:hover {
+  border-color: #38a169;
+  background: linear-gradient(135deg, #f0fff4 0%, #c6f6d5 100%);
+}
+
+.category-icon {
+  font-size: 60px;
+  margin-bottom: 15px;
+}
+
+.category-card h3 {
+  color: #2d3748;
+  margin-bottom: 10px;
+  font-size: 24px;
+}
+
+.category-card p {
+  color: #718096;
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Professional Section Styles */
+.professionals-section {
+  padding: 20px;
+}
+
+.professionals-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 30px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.back-btn {
+  background: #718096;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+
+.back-btn:hover {
+  background: #4a5568;
+}
+
+.professionals-header h2 {
+  margin: 0;
+  color: #2d3748;
+  font-size: 24px;
+}
+
+/* Status badge updates for new busy status */
+.status-badge.status-busy {
+  background: #ed8936;
+  color: white;
+}
+
+/* Status button updates */
+.status-buttons button.active {
+  background: #3182ce;
+  color: white;
+}
+
+.status-buttons button:hover {
+  opacity: 0.8;
+}
   .professional-card {
     flex-direction: column;
     text-align: center;

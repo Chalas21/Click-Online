@@ -300,6 +300,7 @@ function App() {
     
     peerConnection.onicecandidate = (event) => {
       if (event.candidate && websocketRef.current && currentCall) {
+        console.log('Sending ICE candidate:', event.candidate);
         websocketRef.current.send(JSON.stringify({
           type: 'ice-candidate',
           candidate: event.candidate,
@@ -310,9 +311,11 @@ function App() {
     
     peerConnection.ontrack = (event) => {
       console.log('Remote stream received:', event.streams[0]);
+      console.log('Remote stream tracks:', event.streams[0].getTracks().length);
       if (remoteVideoRef.current && event.streams[0]) {
         remoteVideoRef.current.srcObject = event.streams[0];
         setRemoteVideo(event.streams[0]);
+        console.log('Remote video element updated');
       }
     };
 
@@ -322,6 +325,10 @@ function App() {
 
     peerConnection.oniceconnectionstatechange = () => {
       console.log('ICE connection state:', peerConnection.iceConnectionState);
+    };
+
+    peerConnection.onsignalingstatechange = () => {
+      console.log('Signaling state:', peerConnection.signalingState);
     };
     
     return peerConnection;

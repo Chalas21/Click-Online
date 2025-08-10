@@ -1138,10 +1138,6 @@ body {
   color: white;
 }
 
-.status-buttons button:hover {
-  opacity: 0.8;
-}
-
 /* Responsive design updates */
 @media (max-width: 768px) {
   .professional-card {

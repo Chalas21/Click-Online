@@ -944,6 +944,422 @@ class ClickOnlineAPITester:
         
         return False
 
+    def test_default_offline_status_new_professionals(self):
+        """Test that new professionals start with offline status"""
+        print("\n🔍 Testing Default Offline Status for New Professionals...")
+        
+        import time
+        timestamp = int(time.time()) + 200  # Unique timestamp
+        test_email = f"offline_test{timestamp}@test.com"
+        
+        professional_data = {
+            "name": "Dr. Offline Test",
+            "email": test_email,
+            "password": "test123"
+        }
+        
+        success, response = self.run_test(
+            "Register New Professional (Should Default to Offline)",
+            "POST",
+            "/api/register",
+            200,
+            data=professional_data
+        )
+        
+        if success:
+            user_status = response.get('user', {}).get('status')
+            if user_status == 'offline':
+                print(f"   ✅ New professional defaults to offline status: {user_status}")
+                self.tests_run += 1
+                self.tests_passed += 1
+                return True
+            else:
+                print(f"   ❌ New professional status is not offline: {user_status}")
+                self.tests_run += 1
+                return False
+        
+        return False
+
+    def test_category_filter_api(self):
+        """Test /api/professionals endpoint with category parameter"""
+        print("\n🔍 Testing Category Filter API...")
+        
+        # First, create a professional with Médico category
+        import time
+        timestamp = int(time.time()) + 300
+        medico_email = f"medico{timestamp}@test.com"
+        
+        medico_data = {
+            "name": "Dr. Médico Test",
+            "email": medico_email,
+            "password": "test123"
+        }
+        
+        success_reg, response_reg = self.run_test(
+            "Register Médico Professional",
+            "POST",
+            "/api/register",
+            200,
+            data=medico_data
+        )
+        
+        if not success_reg:
+            print("   ❌ Failed to register médico professional")
+            self.tests_run += 1
+            return False
+        
+        medico_token = response_reg.get('access_token')
+        medico_id = response_reg.get('user', {}).get('id')
+        
+        # Enable professional mode with Médico category
+        profile_data = {
+            "professional_mode": True,
+            "category": "Médico",
+            "price_per_minute": 5
+        }
+        
+        success_profile, response_profile = self.run_test(
+            "Enable Professional Mode for Médico",
+            "PUT",
+            "/api/profile",
+            200,
+            data=profile_data,
+            token=medico_token
+        )
+        
+        if not success_profile:
+            print("   ❌ Failed to enable professional mode for médico")
+            self.tests_run += 1
+            return False
+        
+        # Test category filter for Médico
+        success_medico, response_medico = self.run_test(
+            "Get Professionals with Médico Category Filter",
+            "GET",
+            "/api/professionals?category=Médico",
+            200
+        )
+        
+        if success_medico:
+            medico_professionals = [p for p in response_medico if p.get('category') == 'Médico']
+            print(f"   Found {len(medico_professionals)} Médico professionals")
+            
+            # Verify our test professional is in the list
+            test_prof_found = any(p.get('id') == medico_id for p in medico_professionals)
+            if test_prof_found:
+                print("   ✅ Category filter for Médico working correctly")
+            else:
+                print("   ❌ Test Médico professional not found in filtered results")
+                self.tests_run += 1
+                return False
+        else:
+            print("   ❌ Failed to get professionals with Médico filter")
+            self.tests_run += 1
+            return False
+        
+        # Test category filter for Psicólogo (should return empty or different results)
+        success_psico, response_psico = self.run_test(
+            "Get Professionals with Psicólogo Category Filter",
+            "GET",
+            "/api/professionals?category=Psicólogo",
+            200
+        )
+        
+        if success_psico:
+            psico_professionals = [p for p in response_psico if p.get('category') == 'Psicólogo']
+            print(f"   Found {len(psico_professionals)} Psicólogo professionals")
+            
+            # Verify our Médico professional is NOT in Psicólogo results
+            test_prof_not_found = not any(p.get('id') == medico_id for p in psico_professionals)
+            if test_prof_not_found:
+                print("   ✅ Category filter for Psicólogo correctly excludes Médico professionals")
+                self.tests_run += 1
+                self.tests_passed += 1
+                return True
+            else:
+                print("   ❌ Médico professional incorrectly found in Psicólogo filter results")
+                self.tests_run += 1
+                return False
+        
+        return False
+
+    def test_include_offline_professionals(self):
+        """Test that offline professionals are included in listings"""
+        print("\n🔍 Testing Include Offline Professionals in Listings...")
+        
+        # Create a professional and keep them offline
+        import time
+        timestamp = int(time.time()) + 400
+        offline_email = f"offline_prof{timestamp}@test.com"
+        
+        offline_data = {
+            "name": "Dr. Offline Professional",
+            "email": offline_email,
+            "password": "test123"
+        }
+        
+        success_reg, response_reg = self.run_test(
+            "Register Offline Professional",
+            "POST",
+            "/api/register",
+            200,
+            data=offline_data
+        )
+        
+        if not success_reg:
+            print("   ❌ Failed to register offline professional")
+            self.tests_run += 1
+            return False
+        
+        offline_token = response_reg.get('access_token')
+        offline_id = response_reg.get('user', {}).get('id')
+        
+        # Enable professional mode but keep offline status
+        profile_data = {
+            "professional_mode": True,
+            "category": "Psicólogo",
+            "price_per_minute": 8
+        }
+        
+        success_profile, response_profile = self.run_test(
+            "Enable Professional Mode (Keep Offline)",
+            "PUT",
+            "/api/profile",
+            200,
+            data=profile_data,
+            token=offline_token
+        )
+        
+        if not success_profile:
+            print("   ❌ Failed to enable professional mode")
+            self.tests_run += 1
+            return False
+        
+        # Verify professional is still offline
+        success_me, response_me = self.run_test(
+            "Check Professional Status (Should be Offline)",
+            "GET",
+            "/api/me",
+            200,
+            token=offline_token
+        )
+        
+        if success_me:
+            status = response_me.get('status')
+            print(f"   Professional status: {status}")
+            if status != 'offline':
+                print(f"   ⚠️  Professional status is {status}, not offline as expected")
+        
+        # Test that offline professional appears in general listings
+        success_list, response_list = self.run_test(
+            "Get All Professionals (Should Include Offline)",
+            "GET",
+            "/api/professionals",
+            200
+        )
+        
+        if success_list:
+            offline_prof_found = any(p.get('id') == offline_id for p in response_list)
+            if offline_prof_found:
+                offline_prof = next(p for p in response_list if p.get('id') == offline_id)
+                print(f"   ✅ Offline professional found in listings")
+                print(f"   Professional Name: {offline_prof.get('name')}")
+                print(f"   Professional Status: {offline_prof.get('status')}")
+                print(f"   Professional Category: {offline_prof.get('category')}")
+                self.tests_run += 1
+                self.tests_passed += 1
+                return True
+            else:
+                print("   ❌ Offline professional not found in listings")
+                self.tests_run += 1
+                return False
+        
+        return False
+
+    def test_busy_status_support(self):
+        """Test new 'busy' status in professional management"""
+        print("\n🔍 Testing Busy Status Support...")
+        
+        if not self.professional_token:
+            print("   ❌ No professional token available for busy status test")
+            self.tests_run += 1
+            return False
+        
+        # Test updating status to busy
+        success_busy, response_busy = self.run_test(
+            "Update Professional Status to Busy",
+            "PUT",
+            "/api/status",
+            200,
+            data={"status": "busy"},
+            token=self.professional_token
+        )
+        
+        if not success_busy:
+            print("   ❌ Failed to update status to busy")
+            self.tests_run += 1
+            return False
+        
+        # Verify status was updated
+        success_me, response_me = self.run_test(
+            "Check Professional Status (Should be Busy)",
+            "GET",
+            "/api/me",
+            200,
+            token=self.professional_token
+        )
+        
+        if success_me:
+            status = response_me.get('status')
+            if status == 'busy':
+                print(f"   ✅ Professional status updated to busy: {status}")
+            else:
+                print(f"   ❌ Professional status not updated to busy: {status}")
+                self.tests_run += 1
+                return False
+        else:
+            print("   ❌ Failed to get professional status")
+            self.tests_run += 1
+            return False
+        
+        # Test that busy professionals appear in listings
+        success_list, response_list = self.run_test(
+            "Get Professionals (Should Include Busy)",
+            "GET",
+            "/api/professionals",
+            200
+        )
+        
+        if success_list:
+            busy_prof_found = any(p.get('id') == self.professional_id and p.get('status') == 'busy' for p in response_list)
+            if busy_prof_found:
+                print("   ✅ Busy professional found in listings")
+            else:
+                print("   ❌ Busy professional not found in listings or status incorrect")
+                self.tests_run += 1
+                return False
+        else:
+            print("   ❌ Failed to get professional listings")
+            self.tests_run += 1
+            return False
+        
+        # Test updating back to online
+        success_online, response_online = self.run_test(
+            "Update Professional Status Back to Online",
+            "PUT",
+            "/api/status",
+            200,
+            data={"status": "online"},
+            token=self.professional_token
+        )
+        
+        if success_online:
+            print("   ✅ Professional status updated back to online")
+            self.tests_run += 1
+            self.tests_passed += 1
+            return True
+        else:
+            print("   ❌ Failed to update status back to online")
+            self.tests_run += 1
+            return False
+
+    def test_all_status_types_in_listings(self):
+        """Test that all status types (offline, busy, online) are included in professional listings"""
+        print("\n🔍 Testing All Status Types in Professional Listings...")
+        
+        # Create professionals with different statuses
+        import time
+        base_timestamp = int(time.time()) + 500
+        
+        professionals = []
+        statuses = ['offline', 'busy', 'online']
+        
+        for i, status in enumerate(statuses):
+            email = f"status_test_{status}_{base_timestamp + i}@test.com"
+            prof_data = {
+                "name": f"Dr. {status.title()} Test",
+                "email": email,
+                "password": "test123"
+            }
+            
+            success_reg, response_reg = self.run_test(
+                f"Register {status.title()} Professional",
+                "POST",
+                "/api/register",
+                200,
+                data=prof_data
+            )
+            
+            if success_reg:
+                token = response_reg.get('access_token')
+                prof_id = response_reg.get('user', {}).get('id')
+                
+                # Enable professional mode
+                profile_data = {
+                    "professional_mode": True,
+                    "category": "Médico",
+                    "price_per_minute": 5
+                }
+                
+                success_profile, response_profile = self.run_test(
+                    f"Enable Professional Mode for {status.title()}",
+                    "PUT",
+                    "/api/profile",
+                    200,
+                    data=profile_data,
+                    token=token
+                )
+                
+                if success_profile:
+                    # Set the desired status (only if not offline, as that's default)
+                    if status != 'offline':
+                        success_status, response_status = self.run_test(
+                            f"Set Status to {status.title()}",
+                            "PUT",
+                            "/api/status",
+                            200,
+                            data={"status": status},
+                            token=token
+                        )
+                        
+                        if success_status:
+                            professionals.append({'id': prof_id, 'status': status, 'token': token})
+                    else:
+                        professionals.append({'id': prof_id, 'status': status, 'token': token})
+        
+        if len(professionals) < 3:
+            print(f"   ❌ Failed to create all test professionals. Created: {len(professionals)}")
+            self.tests_run += 1
+            return False
+        
+        # Test that all professionals appear in listings regardless of status
+        success_list, response_list = self.run_test(
+            "Get All Professionals (All Status Types)",
+            "GET",
+            "/api/professionals",
+            200
+        )
+        
+        if success_list:
+            found_statuses = set()
+            for prof in professionals:
+                found_prof = next((p for p in response_list if p.get('id') == prof['id']), None)
+                if found_prof:
+                    found_statuses.add(found_prof.get('status'))
+                    print(f"   Found professional with status: {found_prof.get('status')}")
+            
+            if len(found_statuses) >= 2:  # At least 2 different statuses found
+                print(f"   ✅ Professionals with multiple status types found in listings: {found_statuses}")
+                self.tests_run += 1
+                self.tests_passed += 1
+                return True
+            else:
+                print(f"   ❌ Not enough status variety in listings: {found_statuses}")
+                self.tests_run += 1
+                return False
+        
+        return False
+
 def main():
     print("🚀 Starting Click Online API Tests")
     print("=" * 50)

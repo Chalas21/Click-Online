@@ -17,6 +17,8 @@ function App() {
   const [showSettings, setShowSettings] = useState(false);
   const [fileUpload, setFileUpload] = useState(null);
   const [availableDevices, setAvailableDevices] = useState({ cameras: [], microphones: [] });
+  const [showCategorySelection, setShowCategorySelection] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState(null);
 
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);

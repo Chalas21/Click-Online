@@ -308,11 +308,14 @@ async def update_status(status_update: StatusUpdate, current_user: dict = Depend
     return {"message": "Status updated successfully"}
 
 @app.get("/api/professionals")
-async def get_professionals():
-    professionals = await db.users.find({
-        "professional_mode": True,
-        "status": {"$in": ["online", "busy"]}
-    }).to_list(100)
+async def get_professionals(category: Optional[str] = None):
+    filter_query = {"professional_mode": True}
+    
+    if category:
+        filter_query["category"] = category
+    
+    # Include all professionals (online, busy, offline) - removed status filter
+    professionals = await db.users.find(filter_query).to_list(100)
     
     return [serialize_user(prof) for prof in professionals]
 

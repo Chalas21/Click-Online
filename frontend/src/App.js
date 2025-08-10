@@ -752,8 +752,55 @@ function App() {
                       max="100"
                     />
                   </div>
+
+                  <div className="form-group">
+                    <label>Descrição Profissional:</label>
+                    <textarea
+                      value={settingsData.description}
+                      onChange={(e) => setSettingsData({...settingsData, description: e.target.value})}
+                      placeholder="Descreva sua experiência e especialidades..."
+                      rows={3}
+                      maxLength={300}
+                    />
+                    <small>{settingsData.description.length}/300 caracteres</small>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Foto de Perfil (URL):</label>
+                    <input
+                      type="url"
+                      value={settingsData.profile_photo}
+                      onChange={(e) => setSettingsData({...settingsData, profile_photo: e.target.value})}
+                      placeholder="https://exemplo.com/sua-foto.jpg"
+                    />
+                    {settingsData.profile_photo && (
+                      <div className="photo-preview">
+                        <img 
+                          src={settingsData.profile_photo} 
+                          alt="Preview" 
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                          }}
+                        />
+                      </div>
+                    )}
+                  </div>
                 </>
               )}
+
+              {availableDevices.cameras.length > 0 || availableDevices.microphones.length > 0 ? (
+                <div className="form-group">
+                  <label>Dispositivos Detectados:</label>
+                  <div className="device-list">
+                    {availableDevices.cameras.length > 0 && (
+                      <p>📹 Câmeras: {availableDevices.cameras.length}</p>
+                    )}
+                    {availableDevices.microphones.length > 0 && (
+                      <p>🎤 Microfones: {availableDevices.microphones.length}</p>
+                    )}
+                  </div>
+                </div>
+              ) : null}
 
               <div className="modal-actions">
                 <button type="button" onClick={() => setShowSettings(false)} className="cancel-btn">

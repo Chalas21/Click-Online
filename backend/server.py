@@ -107,9 +107,10 @@ class UserResponse(BaseModel):
     email: str
     role: UserRole
     status: UserStatus
-    specialization: Optional[str] = None
+    category: Optional[str] = None
     price_per_minute: Optional[float] = None
     token_balance: int = 0
+    professional_mode: bool = False
 
 class CallRequest(BaseModel):
     professional_id: str

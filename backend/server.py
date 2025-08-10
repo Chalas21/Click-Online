@@ -144,10 +144,9 @@ def verify_password(password: str, hashed: str) -> bool:
     return bcrypt.checkpw(password.encode('utf-8'), hashed.encode('utf-8'))
 
 async def get_current_user(user_id: str = Depends(verify_token)):
-    user = await db.users.find_one({"_id": ObjectId(user_id)})
+    user = await db.users.find_one({"id": user_id})
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    user["id"] = str(user["_id"])
     return user
 
 # Helper functions

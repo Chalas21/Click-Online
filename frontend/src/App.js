@@ -450,6 +450,7 @@ function App() {
     localStreamRef.current = null;
     setCurrentCall(null);
     setChatMessages([]);
+    setChatMinimized(true); // Reset chat to minimized state
     
     if (localVideoRef.current) {
       localVideoRef.current.srcObject = null;

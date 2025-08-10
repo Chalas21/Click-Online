@@ -133,7 +133,9 @@ function App() {
         name: user.name || '',
         professional_mode: user.professional_mode || false,
         category: user.category || 'Médico',
-        price_per_minute: user.price_per_minute || 1
+        price_per_minute: user.price_per_minute || 1,
+        description: user.description || '',
+        profile_photo: user.profile_photo || ''
       });
     }
   }, [user]);

@@ -725,8 +725,11 @@ body {
   font-weight: 600;
 }
 
-/* Chat minimized/expanded states - Updated for draggable chat */
+/* Chat fixed position - bottom left */
 .chat-container {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
   width: 300px;
   background: white;
   border-radius: 12px;
@@ -753,11 +756,6 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  cursor: grab;
-}
-
-.chat-header:active {
-  cursor: grabbing;
 }
 
 .chat-header:hover {

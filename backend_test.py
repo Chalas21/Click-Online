@@ -701,7 +701,7 @@ def main():
     
     tester = ClickOnlineAPITester()
     
-    # Test sequence
+    # Test sequence - focusing on bug fixes and new features
     test_sequence = [
         ("Root Endpoint", tester.test_root_endpoint),
         ("Professional Registration", tester.test_register_professional),
@@ -720,6 +720,12 @@ def main():
         ("Get Calls History", tester.test_get_calls_history),
         ("Invalid Login Test", tester.test_invalid_login),
         ("Unauthorized Access Test", tester.test_unauthorized_access),
+        # NEW TESTS FOR BUG FIXES AND FEATURES
+        ("Duplicate User Portuguese Error", tester.test_duplicate_user_registration_portuguese_error),
+        ("WebSocket File Message Support", tester.test_websocket_file_message_handling),
+        ("WebSocket Chat Message Support", tester.test_websocket_chat_message_handling),
+        ("WebSocket WebRTC Signaling", tester.test_websocket_webrtc_signaling),
+        ("Enhanced Error Messages", tester.test_enhanced_error_messages_validation),
     ]
     
     # Run all tests

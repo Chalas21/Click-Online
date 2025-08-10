@@ -983,8 +983,36 @@ body {
   border: 1px solid #e2e8f0;
 }
 
-.device-list p {
-  margin: 5px 0;
-  font-size: 14px;
-  color: #2d3748;
+/* Professional tips */
+.become-professional {
+  background: #ebf8ff;
+  border: 1px solid #bee3f8;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+  color: #2c5282;
+}
+
+/* Responsive design updates */
+@media (max-width: 768px) {
+  .professional-card {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .prof-photo {
+    align-self: center;
+  }
+  
+  .prof-header {
+    justify-content: center;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .chat-container {
+    left: 10px;
+    right: 10px;
+    width: auto;
+  }
 }

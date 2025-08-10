@@ -12,13 +12,11 @@ function App() {
   const [chatMessages, setChatMessages] = useState([]);
   const [chatInput, setChatInput] = useState('');
   const [chatMinimized, setChatMinimized] = useState(true);
-  const [chatPosition, setChatPosition] = useState({ x: 20, y: 20 });
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [loading, setLoading] = useState(false);
   const [incomingCall, setIncomingCall] = useState(null);
   const [showSettings, setShowSettings] = useState(false);
   const [fileUpload, setFileUpload] = useState(null);
+  const [availableDevices, setAvailableDevices] = useState({ cameras: [], microphones: [] });
 
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);

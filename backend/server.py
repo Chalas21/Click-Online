@@ -228,14 +228,41 @@ async def login(credentials: UserLogin):
 async def get_me(current_user: dict = Depends(get_current_user)):
     return serialize_user(current_user)
 
-@app.put("/api/status")
-async def update_status(status_update: StatusUpdate, current_user: dict = Depends(get_current_user)):
-    await db.users.update_one(
-        {"_id": ObjectId(current_user["_id"])},
-        {"$set": {"status": status_update.status}}
-    )
+@app.put("/api/profile")
+async def update_profile(profile_data: ProfileUpdate, current_user: dict = Depends(get_current_user)):
+    update_fields = {}
     
-    return {"message": "Status updated successfully"}
+    if profile_data.name is not None:
+        update_fields["name"] = profile_data.name
+        
+    if profile_data.professional_mode is not None:
+        update_fields["professional_mode"] = profile_data.professional_mode
+        # If enabling professional mode, set default category if not provided
+        if profile_data.professional_mode and profile_data.category is None:
+            update_fields["category"] = "Médico"  # Default category
+            
+    if profile_data.category is not None:
+        # Validate category
+        if profile_data.category not in ["Médico", "Psicólogo"]:
+            raise HTTPException(status_code=400, detail="Categoria deve ser 'Médico' ou 'Psicólogo'")
+        update_fields["category"] = profile_data.category
+        
+    if profile_data.price_per_minute is not None:
+        if profile_data.price_per_minute < 1 or profile_data.price_per_minute > 100:
+            raise HTTPException(status_code=400, detail="Preço deve estar entre 1 e 100 tokens por minuto")
+        update_fields["price_per_minute"] = profile_data.price_per_minute
+    
+    if update_fields:
+        await db.users.update_one(
+            {"_id": ObjectId(current_user["_id"])},
+            {"$set": update_fields}
+        )
+        
+        # Get updated user
+        updated_user = await db.users.find_one({"_id": ObjectId(current_user["_id"])})
+        return serialize_user(updated_user)
+    
+    return serialize_user(current_user)
 
 @app.get("/api/professionals")
 async def get_professionals():

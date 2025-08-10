@@ -1093,19 +1093,28 @@ function App() {
             // Professional Dashboard
             <div className="professional-dashboard">
               <div className="status-controls">
-                <h2>Status: <span className={`status-${user.status}`}>{user.status}</span></h2>
+                <h2>Status: <span className={`status-${user.status}`}>{
+                  user.status === 'online' ? 'Disponível' :
+                  user.status === 'busy' ? 'Ocupado' : 'Offline'
+                }</span></h2>
                 <div className="status-buttons">
                   <button 
                     onClick={() => updateStatus('online')}
                     className={user.status === 'online' ? 'active' : ''}
                   >
-                    🟢 Online
+                    🟢 Disponível
+                  </button>
+                  <button 
+                    onClick={() => updateStatus('busy')}
+                    className={user.status === 'busy' ? 'active' : ''}
+                  >
+                    🟡 Ocupado
                   </button>
                   <button 
                     onClick={() => updateStatus('offline')}
                     className={user.status === 'offline' ? 'active' : ''}
                   >
-                    ⭕ Offline
+                    🔴 Offline
                   </button>
                 </div>
               </div>

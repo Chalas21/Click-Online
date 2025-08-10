@@ -451,6 +451,12 @@ function App() {
 
   const initiateCall = async (professionalId) => {
     try {
+      // Request media permissions before initiating call
+      const hasPermissions = await requestMediaPermissions();
+      if (!hasPermissions) {
+        return;
+      }
+
       const response = await apiCall('/api/call/initiate', {
         method: 'POST',
         body: JSON.stringify({ professional_id: professionalId }),

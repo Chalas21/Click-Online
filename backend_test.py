@@ -57,18 +57,15 @@ class ClickOnlineAPITester:
         return self.run_test("Root Endpoint", "GET", "/", 200)
 
     def test_register_professional(self):
-        """Test professional registration"""
+        """Test user registration (unified system - all users start as regular users)"""
         professional_data = {
             "name": "Dr. João Silva",
             "email": "doctor@test.com",
-            "password": "test123",
-            "role": "professional",
-            "specialization": "Médico Cardiologista",
-            "price_per_minute": 10
+            "password": "test123"
         }
         
         success, response = self.run_test(
-            "Professional Registration",
+            "Professional Registration (Unified System)",
             "POST",
             "/api/register",
             200,
@@ -79,6 +76,12 @@ class ClickOnlineAPITester:
             self.professional_token = response['access_token']
             self.professional_id = response['user']['id']
             print(f"   Professional ID: {self.professional_id}")
+            print(f"   Initial Token Balance: {response['user']['token_balance']}")
+            print(f"   Professional Mode: {response['user']['professional_mode']}")
+            print(f"   Role: {response['user']['role']}")
+            # Verify new unified system defaults
+            if response['user']['token_balance'] == 1000 and response['user']['professional_mode'] == False:
+                print("   ✅ Unified system working: 1000 tokens, professional_mode=false")
             return True
         return False
 

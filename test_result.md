@@ -116,6 +116,9 @@ backend:
         - working: false
           agent: "main"
           comment: "WebSocket endpoint at /ws/{user_id} missing /api prefix required by Kubernetes ingress rules. All backend API endpoints must be prefixed with '/api' for proper routing."
+        - working: "pending"
+          agent: "main"
+          comment: "FIXED: Updated WebSocket endpoint from /ws/{user_id} to /api/ws/{user_id} to comply with Kubernetes ingress routing rules. Backend restarted successfully."
 
 frontend:
   - task: "WebSocket Client Connection"
@@ -129,6 +132,9 @@ frontend:
         - working: false
           agent: "main"
           comment: "WebSocket URL construction at line 45 has issues: 1) Simple replace('http', 'ws') doesn't properly handle HTTPS->WSS conversion 2) Missing /api prefix in WebSocket URL path"
+        - working: "pending"
+          agent: "main"
+          comment: "FIXED: Updated WebSocket URL construction to properly convert HTTPS->WSS and added /api prefix. Added error handling and logging for WebSocket connections. Frontend restarted successfully."
 
 metadata:
   created_by: "main_agent"

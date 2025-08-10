@@ -306,6 +306,66 @@ backend:
           agent: "testing"
           comment: "USER SERIALIZATION WITH NEW FIELDS TESTING COMPLETED: ✅ serialize_user function updated to include description and profile_photo fields. ✅ All API endpoints returning user data now include new fields. ✅ /api/me endpoint includes new profile fields. ✅ Registration response includes new fields (initially None). ✅ Login response includes new fields. ✅ Profile update responses include updated field values. ✅ Professional listings include new fields. User serialization working correctly with all new profile fields."
 
+  - task: "Default Offline Status for New Professionals"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "DEFAULT OFFLINE STATUS TESTING COMPLETED: ✅ New professional registration correctly defaults to offline status. ✅ All new users start with status='offline' as specified in registration endpoint. ✅ Professional mode activation does not change default offline status. ✅ Status remains offline until explicitly updated via /api/status endpoint. Default offline status working correctly for new professionals."
+
+  - task: "Category Filter API"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "CATEGORY FILTER API TESTING COMPLETED: ✅ /api/professionals endpoint supports category parameter filtering. ✅ Category filter for 'Médico' returns only Médico professionals. ✅ Category filter for 'Psicólogo' returns only Psicólogo professionals. ✅ Category filtering correctly excludes professionals from other categories. ✅ Filter query properly implemented with category parameter validation. Category filter API working correctly for both supported categories."
+
+  - task: "Include Offline Professionals in Listings"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "INCLUDE OFFLINE PROFESSIONALS TESTING COMPLETED: ✅ Offline professionals are properly included in /api/professionals listings. ✅ Professional listings no longer filter by status, showing all professionals regardless of online/offline/busy status. ✅ Offline professionals appear with correct status information in listings. ✅ Professional mode filtering works correctly while including all status types. Offline professionals inclusion working correctly in all professional listings."
+
+  - task: "Busy Status Support"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "BUSY STATUS SUPPORT TESTING COMPLETED: ✅ New 'busy' status fully supported in UserStatus enum. ✅ Professional status can be updated to 'busy' via /api/status endpoint. ✅ Busy professionals appear in professional listings with correct status. ✅ Status transitions between offline/busy/online working correctly. ✅ Busy status properly maintained and displayed in user info endpoints. Busy status support working correctly in professional management system."
+
+  - task: "All Status Types in Professional Listings"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "ALL STATUS TYPES IN LISTINGS TESTING COMPLETED: ✅ Professional listings include professionals with offline, busy, and online statuses. ✅ No status filtering applied to professional listings - all professionals with professional_mode=true are included. ✅ Status information correctly displayed for each professional in listings. ✅ Multiple status types verified in single listing response. ✅ Status diversity maintained across professional catalog. All status types properly included in professional listings."
+
 frontend:
   - task: "WebSocket Client Connection"
     implemented: true

@@ -1396,6 +1396,12 @@ def main():
         ("Professional Listings with New Fields", tester.test_professional_listing_with_new_fields),
         ("Placeholder Image API", tester.test_placeholder_image_api),
         ("User Serialization with New Fields", tester.test_user_serialization_with_new_fields),
+        # NEW TESTS FOR UI IMPROVEMENTS REVIEW
+        ("Default Offline Status for New Professionals", tester.test_default_offline_status_new_professionals),
+        ("Category Filter API", tester.test_category_filter_api),
+        ("Include Offline Professionals", tester.test_include_offline_professionals),
+        ("Busy Status Support", tester.test_busy_status_support),
+        ("All Status Types in Listings", tester.test_all_status_types_in_listings),
     ]
     
     # Run all tests

@@ -365,14 +365,26 @@ function App() {
   };
 
   const handleAnswer = async (answer) => {
+    console.log('Handling answer...');
     if (peerConnectionRef.current) {
-      await peerConnectionRef.current.setRemoteDescription(answer);
+      try {
+        await peerConnectionRef.current.setRemoteDescription(new RTCSessionDescription(answer));
+        console.log('Remote description set successfully');
+      } catch (error) {
+        console.error('Error setting remote description:', error);
+      }
     }
   };
 
   const handleIceCandidate = async (candidate) => {
+    console.log('Handling ICE candidate...');
     if (peerConnectionRef.current) {
-      await peerConnectionRef.current.addIceCandidate(candidate);
+      try {
+        await peerConnectionRef.current.addIceCandidate(new RTCIceCandidate(candidate));
+        console.log('ICE candidate added successfully');
+      } catch (error) {
+        console.error('Error adding ICE candidate:', error);
+      }
     }
   };
 

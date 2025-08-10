@@ -285,12 +285,11 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Unified User System"
-    - "Updated Token System"
-    - "Category System"
-    - "Profile Settings API"
-    - "Professional Mode Toggle"
-    - "API Endpoints Integration"
+    - "Duplicate User Detection Bug Fix"
+    - "WebSocket File Message Support"
+    - "Enhanced Error Messages"
+    - "WebSocket Chat Functionality"
+    - "WebRTC Signaling Support"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"

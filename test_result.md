@@ -393,11 +393,11 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Profile Photo and Description Fields"
-    - "Enhanced Profile API Validation"
-    - "Professional Profile Display Enhancement"
-    - "Placeholder Image API"
-    - "User Serialization with New Fields"
+    - "Default Offline Status for New Professionals"
+    - "Category Filter API"
+    - "Include Offline Professionals in Listings"
+    - "Busy Status Support"
+    - "All Status Types in Professional Listings"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"

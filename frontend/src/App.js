@@ -213,6 +213,25 @@ function App() {
     }
   };
 
+  // Request media permissions and detect available devices
+  const detectAvailableDevices = async () => {
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const cameras = devices.filter(device => device.kind === 'videoinput');
+      const microphones = devices.filter(device => device.kind === 'audioinput');
+      
+      setAvailableDevices({ cameras, microphones });
+      
+      console.log('Detected cameras:', cameras.length);
+      console.log('Detected microphones:', microphones.length);
+      
+      return { cameras, microphones };
+    } catch (error) {
+      console.error('Error detecting devices:', error);
+      return { cameras: [], microphones: [] };
+    }
+  };
+
   // Request media permissions
   const requestMediaPermissions = async () => {
     try {
@@ -220,6 +239,10 @@ function App() {
         video: { width: 640, height: 480 }, 
         audio: true 
       });
+      
+      // Detect devices after getting permission
+      await detectAvailableDevices();
+      
       // Stop the stream immediately after getting permission
       stream.getTracks().forEach(track => track.stop());
       return true;
@@ -230,39 +253,10 @@ function App() {
     }
   };
 
-  // Chat drag functions
-  const handleMouseDown = (e) => {
-    setIsDragging(true);
-    setDragOffset({
-      x: e.clientX - chatPosition.x,
-      y: e.clientY - chatPosition.y
-    });
-  };
-
-  const handleMouseMove = (e) => {
-    if (isDragging) {
-      setChatPosition({
-        x: e.clientX - dragOffset.x,
-        y: e.clientY - dragOffset.y
-      });
-    }
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
-
-  // Add global mouse event listeners for dragging
+  // Initialize device detection on component mount
   useEffect(() => {
-    if (isDragging) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-      return () => {
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
-      };
-    }
-  }, [isDragging, dragOffset]);
+    detectAvailableDevices();
+  }, []);
 
   const updateSettings = async (e) => {
     e.preventDefault();

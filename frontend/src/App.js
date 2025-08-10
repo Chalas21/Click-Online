@@ -288,6 +288,18 @@ function App() {
     }
   };
 
+  const selectCategory = (category) => {
+    setSelectedCategory(category);
+    setShowCategorySelection(false);
+    loadProfessionals(category);
+  };
+
+  const backToCategorySelection = () => {
+    setSelectedCategory(null);
+    setShowCategorySelection(true);
+    setProfessionals([]);
+  };
+
   const updateStatus = async (status) => {
     try {
       await apiCall('/api/status', {

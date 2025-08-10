@@ -96,9 +96,6 @@ class UserCreate(BaseModel):
     name: str
     email: str
     password: str
-    role: UserRole
-    specialization: Optional[str] = None
-    price_per_minute: Optional[float] = None
 
 class UserLogin(BaseModel):
     email: str

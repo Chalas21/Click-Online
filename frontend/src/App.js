@@ -459,50 +459,76 @@ function App() {
   };
 
   const handleOffer = async (offer, from) => {
-    console.log('Handling offer from:', from);
+    console.log('📨 Handling offer from:', from);
+    console.log('📄 Offer received:', offer.type, offer.sdp?.length, 'chars');
     
-    const peerConnection = initializePeerConnection();
-    peerConnectionRef.current = peerConnection;
-
     try {
+      // Initialize peer connection first
+      console.log('🔗 Initializing peer connection for callee...');
+      const peerConnection = initializePeerConnection();
+      peerConnectionRef.current = peerConnection;
+
+      // Get user media
+      console.log('📹 Getting callee user media...');
       const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { width: 640, height: 480 }, 
-        audio: true 
+        video: { 
+          width: { ideal: 640 }, 
+          height: { ideal: 480 },
+          facingMode: 'user'
+        }, 
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
+        }
       });
       
-      console.log('Local stream obtained for callee:', stream);
+      console.log('✅ Callee local stream obtained:', stream.getTracks().map(t => ({ kind: t.kind, enabled: t.enabled })));
       
+      // Set local video
       if (localVideoRef.current) {
         localVideoRef.current.srcObject = stream;
         setLocalVideo(stream);
+        localVideoRef.current.play().catch(e => console.warn('Callee local video play error:', e));
       }
       localStreamRef.current = stream;
 
-      stream.getTracks().forEach(track => {
-        console.log('Adding track to peer connection:', track.kind);
+      // Add tracks to peer connection BEFORE setting remote description
+      console.log('➕ Adding callee tracks to peer connection...');
+      stream.getTracks().forEach((track, index) => {
+        console.log(`Adding callee track ${index + 1}:`, track.kind, track.enabled);
         peerConnection.addTrack(track, stream);
       });
 
-      console.log('Setting remote description...');
+      // Set remote description (offer)
+      console.log('📥 Setting remote description (offer)...');
       await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+      console.log('✅ Remote description set (callee)');
       
-      console.log('Creating answer...');
+      // Create answer
+      console.log('📞 Creating answer...');
       const answer = await peerConnection.createAnswer({
-        offerToReceiveVideo: true,
-        offerToReceiveAudio: true
+        offerToReceiveAudio: true,
+        offerToReceiveVideo: true
       });
+      
+      console.log('📄 Answer created:', answer.type, answer.sdp?.length, 'chars');
       await peerConnection.setLocalDescription(answer);
+      console.log('✅ Local description set (callee)');
 
-      console.log('Sending answer via WebSocket');
+      // Send answer via WebSocket
+      console.log('📤 Sending answer via WebSocket');
       websocketRef.current.send(JSON.stringify({
         type: 'answer',
         sdp: answer,
         target: from
       }));
 
+      // Update call state
       setCurrentCall({ other_user_id: from, call_id: incomingCall.call_id });
+      console.log('✅ Call state updated for callee');
     } catch (error) {
-      console.error('Error handling offer:', error);
+      console.error('❌ Error handling offer:', error);
       alert('Erro ao processar chamada: ' + error.message);
     }
   };

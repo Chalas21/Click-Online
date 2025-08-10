@@ -316,34 +316,52 @@ function App() {
   };
 
   const handleOffer = async (offer, from) => {
+    console.log('Handling offer from:', from);
+    
     const peerConnection = initializePeerConnection();
     peerConnectionRef.current = peerConnection;
 
-    const stream = await navigator.mediaDevices.getUserMedia({ 
-      video: true, 
-      audio: true 
-    });
-    
-    if (localVideoRef.current) {
-      localVideoRef.current.srcObject = stream;
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { width: 640, height: 480 }, 
+        audio: true 
+      });
+      
+      console.log('Local stream obtained for callee:', stream);
+      
+      if (localVideoRef.current) {
+        localVideoRef.current.srcObject = stream;
+        setLocalVideo(stream);
+      }
+      localStreamRef.current = stream;
+
+      stream.getTracks().forEach(track => {
+        console.log('Adding track to peer connection:', track.kind);
+        peerConnection.addTrack(track, stream);
+      });
+
+      console.log('Setting remote description...');
+      await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+      
+      console.log('Creating answer...');
+      const answer = await peerConnection.createAnswer({
+        offerToReceiveVideo: true,
+        offerToReceiveAudio: true
+      });
+      await peerConnection.setLocalDescription(answer);
+
+      console.log('Sending answer via WebSocket');
+      websocketRef.current.send(JSON.stringify({
+        type: 'answer',
+        sdp: answer,
+        target: from
+      }));
+
+      setCurrentCall({ other_user_id: from, call_id: incomingCall.call_id });
+    } catch (error) {
+      console.error('Error handling offer:', error);
+      alert('Erro ao processar chamada: ' + error.message);
     }
-    localStreamRef.current = stream;
-
-    stream.getTracks().forEach(track => {
-      peerConnection.addTrack(track, stream);
-    });
-
-    await peerConnection.setRemoteDescription(offer);
-    const answer = await peerConnection.createAnswer();
-    await peerConnection.setLocalDescription(answer);
-
-    websocketRef.current.send(JSON.stringify({
-      type: 'answer',
-      sdp: answer,
-      target: from
-    }));
-
-    setCurrentCall({ other_user_id: from, call_id: incomingCall.call_id });
   };
 
   const handleAnswer = async (answer) => {

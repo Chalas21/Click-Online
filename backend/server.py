@@ -111,6 +111,8 @@ class UserResponse(BaseModel):
     price_per_minute: Optional[float] = None
     token_balance: int = 0
     professional_mode: bool = False
+    description: Optional[str] = None
+    profile_photo: Optional[str] = None
 
 class CallRequest(BaseModel):
     professional_id: str

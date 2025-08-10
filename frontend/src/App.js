@@ -327,6 +327,12 @@ function App() {
     try {
       console.log('Starting call, isCaller:', isCaller);
       
+      // Request permissions first if we haven't already
+      const hasPermissions = await requestMediaPermissions();
+      if (!hasPermissions) {
+        return;
+      }
+      
       const stream = await navigator.mediaDevices.getUserMedia({ 
         video: { width: 640, height: 480 }, 
         audio: true 

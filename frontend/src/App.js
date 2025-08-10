@@ -261,10 +261,12 @@ function App() {
     }
   };
 
-  // Initialize device detection on component mount
+  // Show category selection for non-professional users
   useEffect(() => {
-    detectAvailableDevices();
-  }, []);
+    if (user && !user.professional_mode && !selectedCategory) {
+      setShowCategorySelection(true);
+    }
+  }, [user, selectedCategory]);
 
   const updateSettings = async (e) => {
     e.preventDefault();

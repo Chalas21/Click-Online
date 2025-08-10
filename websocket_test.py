@@ -104,7 +104,7 @@ class WebSocketTester:
         # Test user WebSocket connection
         try:
             user_ws_url = f"{self.ws_url}/api/ws/{self.user_id}"
-            self.user_ws = await websockets.connect(user_ws_url, timeout=10)
+            self.user_ws = await asyncio.wait_for(websockets.connect(user_ws_url), timeout=10)
             self.log_test("User WebSocket Connection", True, f"Connected to {user_ws_url}")
         except Exception as e:
             self.log_test("User WebSocket Connection", False, f"Error: {e}")
@@ -113,7 +113,7 @@ class WebSocketTester:
         # Test professional WebSocket connection
         try:
             prof_ws_url = f"{self.ws_url}/api/ws/{self.professional_id}"
-            self.professional_ws = await websockets.connect(prof_ws_url, timeout=10)
+            self.professional_ws = await asyncio.wait_for(websockets.connect(prof_ws_url), timeout=10)
             self.log_test("Professional WebSocket Connection", True, f"Connected to {prof_ws_url}")
         except Exception as e:
             self.log_test("Professional WebSocket Connection", False, f"Error: {e}")

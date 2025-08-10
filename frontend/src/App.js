@@ -381,7 +381,7 @@ function App() {
 
   const startCall = async (isCaller) => {
     try {
-      console.log('Starting call, isCaller:', isCaller);
+      console.log('🚀 Starting call, isCaller:', isCaller);
       
       // Request permissions first if we haven't already
       const hasPermissions = await requestMediaPermissions();
@@ -389,45 +389,71 @@ function App() {
         return;
       }
       
+      console.log('📹 Getting user media...');
       const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { width: 640, height: 480 }, 
-        audio: true 
+        video: { 
+          width: { ideal: 640 }, 
+          height: { ideal: 480 },
+          facingMode: 'user'
+        }, 
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
+        }
       });
       
-      console.log('Local stream obtained:', stream);
+      console.log('✅ Local stream obtained:', stream.getTracks().map(t => ({ kind: t.kind, enabled: t.enabled })));
       
+      // Set local video first
       if (localVideoRef.current) {
         localVideoRef.current.srcObject = stream;
         setLocalVideo(stream);
+        localVideoRef.current.play().catch(e => console.warn('Local video play error:', e));
       }
       localStreamRef.current = stream;
 
+      // Initialize peer connection AFTER getting stream
+      console.log('🔗 Initializing peer connection...');
       const peerConnection = initializePeerConnection();
       peerConnectionRef.current = peerConnection;
 
-      // Add tracks to peer connection
-      stream.getTracks().forEach(track => {
-        console.log('Adding track to peer connection:', track.kind);
+      // Add ALL tracks to peer connection
+      console.log('➕ Adding tracks to peer connection...');
+      stream.getTracks().forEach((track, index) => {
+        console.log(`Adding track ${index + 1}:`, track.kind, track.enabled);
         peerConnection.addTrack(track, stream);
       });
 
+      // Wait a bit for the peer connection to be ready
+      await new Promise(resolve => setTimeout(resolve, 100));
+
       if (isCaller) {
-        console.log('Creating offer...');
-        const offer = await peerConnection.createOffer({
-          offerToReceiveVideo: true,
-          offerToReceiveAudio: true
-        });
-        await peerConnection.setLocalDescription(offer);
-        
-        console.log('Sending offer via WebSocket');
-        websocketRef.current.send(JSON.stringify({
-          type: 'offer',
-          sdp: offer,
-          target: currentCall.other_user_id
-        }));
+        console.log('📞 Caller: Creating offer...');
+        try {
+          const offer = await peerConnection.createOffer({
+            offerToReceiveAudio: true,
+            offerToReceiveVideo: true
+          });
+          
+          console.log('📄 Offer created:', offer.type, offer.sdp?.length, 'chars');
+          await peerConnection.setLocalDescription(offer);
+          console.log('✅ Local description set (caller)');
+          
+          // Send offer via WebSocket
+          console.log('📤 Sending offer via WebSocket');
+          websocketRef.current.send(JSON.stringify({
+            type: 'offer',
+            sdp: offer,
+            target: currentCall.other_user_id
+          }));
+        } catch (error) {
+          console.error('❌ Error creating/sending offer:', error);
+          throw error;
+        }
       }
     } catch (error) {
-      console.error('Error starting call:', error);
+      console.error('❌ Error starting call:', error);
       alert('Não foi possível acessar câmera/microfone: ' + error.message);
     }
   };

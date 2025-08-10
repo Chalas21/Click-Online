@@ -389,7 +389,7 @@ async def get_calls(current_user: dict = Depends(get_current_user)):
     return calls
 
 # WebSocket for signaling
-@app.websocket("/ws/{user_id}")
+@app.websocket("/api/ws/{user_id}")
 async def websocket_endpoint(websocket: WebSocket, user_id: str):
     connection_id = await manager.connect(websocket, user_id)
     

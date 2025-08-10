@@ -37,7 +37,9 @@ function App() {
     name: '',
     professional_mode: false,
     category: 'Médico',
-    price_per_minute: 1
+    price_per_minute: 1,
+    description: '',
+    profile_photo: ''
   });
 
   // WebRTC Configuration

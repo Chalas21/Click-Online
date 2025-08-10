@@ -86,16 +86,15 @@ class ClickOnlineAPITester:
         return False
 
     def test_register_user(self):
-        """Test user registration"""
+        """Test user registration (unified system)"""
         user_data = {
             "name": "Maria Santos",
             "email": "user@test.com",
-            "password": "test123",
-            "role": "user"
+            "password": "test123"
         }
         
         success, response = self.run_test(
-            "User Registration",
+            "User Registration (Unified System)",
             "POST",
             "/api/register",
             200,
@@ -107,6 +106,13 @@ class ClickOnlineAPITester:
             self.user_id = response['user']['id']
             print(f"   User ID: {self.user_id}")
             print(f"   Token Balance: {response['user']['token_balance']}")
+            print(f"   Professional Mode: {response['user']['professional_mode']}")
+            print(f"   Default Price Per Minute: {response['user']['price_per_minute']}")
+            # Verify new unified system defaults
+            if (response['user']['token_balance'] == 1000 and 
+                response['user']['professional_mode'] == False and
+                response['user']['price_per_minute'] == 1):
+                print("   ✅ Unified system working: 1000 tokens, professional_mode=false, 1 token/min")
             return True
         return False
 

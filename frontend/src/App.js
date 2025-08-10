@@ -201,15 +201,25 @@ function App() {
     }
   };
 
-  const updateStatus = async (status) => {
+  const updateSettings = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    
     try {
-      await apiCall('/api/status', {
+      const response = await apiCall('/api/profile', {
         method: 'PUT',
-        body: JSON.stringify({ status }),
+        body: JSON.stringify(settingsData),
       });
-      setUser(prev => ({ ...prev, status }));
+
+      if (response) {
+        setUser(response);
+        setShowSettings(false);
+        alert('Perfil atualizado com sucesso!');
+      }
     } catch (error) {
-      alert('Failed to update status: ' + error.message);
+      alert('Erro ao atualizar perfil: ' + error.message);
+    } finally {
+      setLoading(false);
     }
   };
 

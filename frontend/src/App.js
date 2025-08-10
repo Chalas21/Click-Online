@@ -562,14 +562,19 @@ function App() {
   };
 
   const handleIceCandidate = async (candidate) => {
-    console.log('Handling ICE candidate...');
-    if (peerConnectionRef.current) {
+    console.log('🧊 Handling ICE candidate:', candidate);
+    
+    if (peerConnectionRef.current && peerConnectionRef.current.remoteDescription) {
       try {
         await peerConnectionRef.current.addIceCandidate(new RTCIceCandidate(candidate));
-        console.log('ICE candidate added successfully');
+        console.log('✅ ICE candidate added successfully');
       } catch (error) {
-        console.error('Error adding ICE candidate:', error);
+        console.error('❌ Error adding ICE candidate:', error);
+        // This is often not critical, so we continue
       }
+    } else {
+      console.warn('⚠️ Cannot add ICE candidate: no peer connection or remote description not set yet');
+      // Could queue the candidate for later, but usually handled by browser
     }
   };
 

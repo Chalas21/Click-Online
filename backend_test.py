@@ -869,14 +869,23 @@ class ClickOnlineAPITester:
             "Placeholder Image API",
             "GET",
             "/api/placeholder/150x150?text=Profile",
-            302  # Redirect response
+            200  # JSON response instead of redirect
         )
         
         if success:
-            print("   ✅ Placeholder image API working (returns redirect)")
-            self.tests_run += 1
-            self.tests_passed += 1
-            return True
+            if (response.get('placeholder') == True and 
+                response.get('width') == 150 and 
+                response.get('height') == 150):
+                print("   ✅ Placeholder image API working (returns JSON)")
+                print(f"   Dimensions: {response.get('width')}x{response.get('height')}")
+                print(f"   Text: {response.get('text')}")
+                self.tests_run += 1
+                self.tests_passed += 1
+                return True
+            else:
+                print("   ❌ Placeholder image API response format incorrect")
+                self.tests_run += 1
+                return False
         else:
             print("   ❌ Placeholder image API not working")
             self.tests_run += 1
